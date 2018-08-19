@@ -1,0 +1,25 @@
+{
+  "name": "playtrello",
+  "version": "1.0.0",
+  "description": "Play with Trello",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FaMoSi/PlayTrello.git"
+  },
+  "keywords": [
+    "trello"
+  ],
+  "author": "Simone Faggi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FaMoSi/PlayTrello/issues"
+  },
+  "homepage": "https://github.com/FaMoSi/PlayTrello#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
