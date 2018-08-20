@@ -18,21 +18,17 @@ function loadHome(is_log) {
     });
 }
 
-function loadOrganization() {
-  var organization = $('#organizationName').val()
-  console.log(organization);
-}
-
 $("#button").click(function() {
-  var organization = $('#organizationName').val()
+  console.log(localStorage.getItem("token"));
+  localStorage.setItem("organization", $('#organizationName').val());
+  console.log($('#organizationName').val());
   $.ajax({
-  url: '/api/trello/o/' + organization,
-  success: function(res) {
-    
-  },
-  error: function(err) {
+    url: '/api/trello/o?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    success: function(res) {
 
-  }
-});
+    },
+    error: function(err) {
 
+    }
+  });
 })
