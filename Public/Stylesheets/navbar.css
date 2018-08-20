@@ -1,0 +1,13 @@
+
+.navbar-brand {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 30px;
+  max-height: 50px;
+  color: #0081d3!important;
+  border-color: #0081d3;
+  border-style: solid;
+  border-width: 0 0 4px 0;
+  font-size: 26px;
+  font-weight: bold;
+}

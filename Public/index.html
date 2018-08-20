@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>PlayTrello</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="HandheldFriendly" content="true" />
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css" />
+  <link rel="stylesheet" href="/Stylesheets/navbar.css" type="text/css" />
+</head>
+
+<body>
+
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <span class="navbar-brand">TrelloPoly</span>
+      </div>
+      <div class="login-right">
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a class="loggedout" id="login" href="javascript:void(0)">
+              <span class="glyphicon glyphicon-user"></span> Login</a>
+          </li>
+          <li>
+            <a class="loggedin" id="logout" href="javascript:void(0)">
+              <span class="glyphicon glyphicon-user"></span> Username</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="HomeLogin">
+    <form class="organization" onsubmit="loadOrganization()">
+      <input type="text" id="organizationName" placeholder="Organization...">
+      <input type="button" id="button" value="send!">
+    </form>
+
+    <p id="#response"></p>
+  </div>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://trello.com/1/client.js?key=4dd8f72d0f8b9dfb50ac4131b768ff3d"></script>
+  <script type="text/javascript" src="/js/visualizer.js"></script>
+  <script type="text/javascript" src="/js/input.js"></script>
+  <script type="text/javascript" src="/js/login.js"></script>
+</html>
