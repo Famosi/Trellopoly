@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css" />
   <link rel="stylesheet" href="/Stylesheets/navbar.css" type="text/css" />
+  <link rel="stylesheet" href="/Stylesheets/btns.css" type="text/css" />
 </head>
 
 <body>
@@ -34,12 +35,20 @@
   </nav>
 
   <div class="HomeLogin">
-    <form class="organization" onsubmit="loadOrganization()">
       <input type="text" id="organizationName" placeholder="Organization...">
       <input type="button" id="button" value="send!">
-    </form>
+      <br>
+      <br>
+      <div id="players"></div>
+      <div id="error"></div>
+      <div id="playGame"></div>
+      <div class="btns">
+        <div class="dadi">
+          <button>Lancia dadi</button>
+          <p id="result"></p>
+        </div>
 
-    <p id="#response"></p>
+      </div>
   </div>
 
 

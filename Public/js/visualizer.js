@@ -19,16 +19,58 @@ function loadHome(is_log) {
 }
 
 $("#button").click(function() {
-  console.log(localStorage.getItem("token"));
   localStorage.setItem("organization", $('#organizationName').val());
-  console.log($('#organizationName').val());
   $.ajax({
-    url: '/api/trello/o?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    url: '/api/trello/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
     success: function(res) {
-      alert(res.message);
+      if (res.success) {
+        $("#error").html("");
+        $("#playGame").html("");
+        getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
+      } else {
+        console.log(res.message);
+        $("#players").html("");
+        $("#playGame").html("");
+        $("#error").append("<p>" + res.message + "</p>");
+      }
     },
     error: function(err) {
       console.log("Error: " + err);
     }
   });
+})
+
+
+function getBoards(organization, token) {
+  $.ajax({
+    url: '/api/trello/boards?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    success: function(res) {
+      if (res.success) {
+        console.log(res.data[0].name);
+        var index = 1;
+        for (var i = 0; i < res.data.length; i++) {
+          if (res.data[i].name != "Scatola") {
+            $("#players").append("<button class=\"player" + index + "\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</button>");
+            index++
+          }
+        }
+      }
+    },
+    error: function(err) {
+      console.log("Error getBoards: " + err);
+    }
+  });
+}
+
+function loadPlayer(id) {
+  console.log(id);
+  $("#players").html("");
+  $("#error").html("");
+  $("#playGame").append("<p>Giochiamo " + localStorage.getItem("username") + "!<br>Board ID: " + id +"</p>")
+  $(".btns").show()
+}
+
+$(".dadi").on("click", function () {
+  var result = Math.floor(Math.random() * 12) + 1
+  $("#result").html(result)
 })

@@ -2,8 +2,9 @@ var express = require('express');
 var request = require('request');
 var router = express.Router();
 
+
 //Get user organizations
-router.get("/o?*", function(req, res) {
+router.get("/organization*", function(req, res) {
   var options = {
     method: 'GET',
     url: 'https://api.trello.com/1/members/me' + '/organizations/',
@@ -31,6 +32,27 @@ router.get("/o?*", function(req, res) {
   });
 })
 
+router.get("/board*", function(req, res) {
+  var rsp = {};
+  var options = {
+    method: 'GET',
+    url: 'https://api.trello.com/1/organization/' +  req.query.organization + '/boards/',
+    qs: {
+      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      token: req.query.token
+    }
+  };
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+    var data = JSON.parse(body);
+    rsp.success = true;
+    rsp.message = "Your Boards";
+    rsp.data = data;
+    res.status(200).json(rsp)
+  });
+})
+
 //Get logged user boards
 function getBoards(organization, token) {
   var play = true
@@ -53,6 +75,7 @@ function getBoards(organization, token) {
   return play
 }
 
+//Check if Boards are ok
 function checkBoards(boards, token) {
   var play = true
   for (var i = 0; i < boards.length; i++) {
@@ -77,6 +100,7 @@ function checkBoards(boards, token) {
   return play
 }
 
+//Check if Board is ok
 function checkScatola(options, token) {
   console.log("Check Scatola...");
   request(options, function (error, response, body) {
@@ -98,6 +122,7 @@ function checkScatola(options, token) {
   });
 }
 
+//Check if Board is ok
 function checkPlayer(options, token) {
   console.log("Check Player...");
   request(options, function (error, response, body) {
@@ -129,5 +154,6 @@ function checkOrg(data, organization) {
   }
   return false
 }
+
 
 module.exports = router;
