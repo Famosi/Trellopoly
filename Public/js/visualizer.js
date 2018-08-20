@@ -25,10 +25,10 @@ $("#button").click(function() {
   $.ajax({
     url: '/api/trello/o?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
     success: function(res) {
-
+      alert(res.message);
     },
     error: function(err) {
-
+      console.log("Error: " + err);
     }
   });
 })

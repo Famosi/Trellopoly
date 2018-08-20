@@ -14,18 +14,26 @@ router.get("/o?*", function(req, res) {
   };
 
   request(options, function (error, response, body) {
+    var rsp = {}
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     if (checkOrg(data, req.query.organization)) {
-      getBoards(req.query.organization, req.query.token)
+      if (getBoards(req.query.organization, req.query.token)) {
+        rsp.success = true;
+        rsp.message = "Ok to play!";
+        res.status(200).json(rsp);
+      }
     } else {
-      console.log("You are not a member of this Organization");
+      rsp.success = false;
+      rsp.message = "You are not a member of this Organization";
+      res.status(200).json(rsp);
     }
   });
 })
 
 //Get logged user boards
 function getBoards(organization, token) {
+  var play = true
   var options = {
     method: 'GET',
     url: 'https://api.trello.com/1/organization/' +  organization + '/boards/',
@@ -38,11 +46,15 @@ function getBoards(organization, token) {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
     var boards = JSON.parse(body);
-    checkBoards(boards, token)
+    if (!checkBoards(boards, token)) {
+      play = false
+    }
   });
+  return play
 }
 
 function checkBoards(boards, token) {
+  var play = true
   for (var i = 0; i < boards.length; i++) {
     var options = {
       method: 'GET',
@@ -53,11 +65,16 @@ function checkBoards(boards, token) {
       }
     };
     if (boards[i].name == "Scatola") {
-      checkScatola(options, token)
+      if (!checkScatola(options, token)) {
+        play = false
+      }
     } else {
-      checkPlayer(options, token)
+      if (!checkPlayer(options, token)){
+        play = false
+      }
     }
   }
+  return play
 }
 
 function checkScatola(options, token) {
@@ -73,7 +90,11 @@ function checkScatola(options, token) {
     }
     if (play) {
       console.log("Ok Scatola!");
-    } else console.log("Can't Play");
+      return true
+    } else {
+      console.log("Can't Play");
+      return false
+    }
   });
 }
 
@@ -90,7 +111,11 @@ function checkPlayer(options, token) {
     }
     if (play) {
       console.log("Ok Player!");
-    } else console.log("Can't Play");
+      return true
+    } else {
+      console.log("Can't Play");
+      return false
+    }
   });
 }
 
