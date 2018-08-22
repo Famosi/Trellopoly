@@ -1,3 +1,4 @@
+
 $(document).ready(function() {
   /* Detect ios 11_0_x affected
   * NEED TO BE UPDATED if new versions are affected */
@@ -8,18 +9,24 @@ $(document).ready(function() {
   $("body").addClass("iosBugFixCaret");
 
   var is_log = Trello.authorized();
-  loadHome(is_log);
+  if (document.location.pathname == "/") {
+    loadHome()
+  } else if (document.location.pathname.startsWith("/organization")) {
+    loadOrganization()
+  }
 });
 
-function loadHome(is_log) {
-    Trello.members.get("me", function(member) {
-        var username = member.fullName
-        $('#logout').html("<span class=\"glyphicon glyphicon-user\"></span> " + localStorage.getItem("username"))
-    });
+function loadHome() {
+
 }
 
 $("#button").click(function() {
+  loadOrganization()
   localStorage.setItem("organization", $('#organizationName').val());
+  window.history.pushState({},'', "organization="+localStorage.getItem("organization"));
+})
+
+function loadOrganization() {
   $.ajax({
     url: '/api/trello/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
     success: function(res) {
@@ -38,7 +45,7 @@ $("#button").click(function() {
       console.log("Error: " + err);
     }
   });
-})
+}
 
 
 function getBoards(organization, token) {
@@ -52,6 +59,8 @@ function getBoards(organization, token) {
           if (res.data[i].name != "Scatola") {
             $("#players").append("<button class=\"player" + index + "\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</button>");
             index++
+          } else {
+            localStorage.setItem("idScatola", res.data[i].id);
           }
         }
       }
@@ -64,13 +73,47 @@ function getBoards(organization, token) {
 
 function loadPlayer(id) {
   console.log(id);
+  localStorage.setItem("playerBoardId", id);
   $("#players").html("");
   $("#error").html("");
-  $("#playGame").append("<p>Giochiamo " + localStorage.getItem("username") + "!<br>Board ID: " + id +"</p>")
+  $("#playGame").append("<p>Giochiamo " + localStorage.getItem("username") + "!<br>Board ID: " + localStorage.getItem("playerBoardId") +"</p>")
   $(".btns").show()
 }
 
 $(".dadi").on("click", function () {
-  var result = Math.floor(Math.random() * 12) + 1
-  $("#result").html(result)
+  var result = Math.floor(Math.random() * 12) + 1;
+  localStorage.setItem("dadi", result);
+  $("#result").html(result);
+  movePlayer(result);
 })
+
+function movePlayer(n){
+  getPosition(n)
+
+}
+
+function getPosition(n) {
+  $.ajax({
+    url: '/api/trello/position?id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
+    success: function(res) {
+      if (res.success) {
+        console.log(res.position);
+        var newPosition = 1 + n
+        $.ajax({
+          url: '/api/trello/move?newPosition=' + newPosition + '&token=' + localStorage.getItem("token"),
+          success: function (res) {
+            console.log(rsp.message);
+          },
+          error: function (res) {
+            console.log("Error getPositionIn: " + err);
+          }
+        });
+      } else {
+
+      }
+    },
+    error: function(err) {
+      console.log("Error getPosition: " + err);
+    }
+  });
+}

@@ -5,7 +5,6 @@ var onAuthorize = function() {
       localStorage.setItem("token", Trello.token())
   });
   $('#logout').html("<span class=\"glyphicon glyphicon-user\"></span> " + localStorage.getItem("username"))
-  loadHome()
 };
 
 var onError = function() {
