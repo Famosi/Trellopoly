@@ -5,7 +5,13 @@ body {
   line-height: 1.5;
 }
 
-#dice,
+#diceimg{
+  width: 50%;
+}
+
+.cardimg{
+  text-align: center;
+}
 .Trello-cards{
   display: none
 }

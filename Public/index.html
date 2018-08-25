@@ -55,28 +55,24 @@
       <div id="searchBarContainer">
         <input type="text" class="input-organization" placeholder="Trello organization..." onfocus="this.select()">
       </div>
-      <div id="players"></div>
-      <div id="error"></div>
-      <div id="playGame"></div>
-    </div>
-    <div class="container-fluid dice">
-      <div id="dice">
-        <button id="launchDice">Lancia dadi</button>
-        <p id="result"></p>
+      <div class="message-container">
+        <div id="players"></div>
+        <div id="error"></div>
       </div>
     </div>
   </div>
   <div class="container-fluid">
     <div class="Trello-cards">
       <div class="card" style="width: 18rem;">
-        <img class="card-img-top" src="..." alt="Card image cap">
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
+        <div class="cardimg">
+          <img class="card-img-top" id="diceimg" src="https://images-na.ssl-images-amazon.com/images/I/41xzNPtHDtL._SX466_.jpg" alt="Card image dadi">
+        </div>
+        <div class="dice" style="text-align: center;">
+          <a href="#" class="btn btn-primary" id="launchDice">Lancia Dadi</a>
         </div>
       </div>
     </div>
+  </div>
   </div>
   <div class="white-space"></div>
 
