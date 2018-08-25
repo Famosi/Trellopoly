@@ -52,11 +52,18 @@ router.get("/board*", function(req, res) {
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-    var data = JSON.parse(body);
-    rsp.success = true;
-    rsp.message = "Your Boards";
-    rsp.data = data;
-    res.status(200).json(rsp)
+    if (!body.startsWith("unauthorized") && !body.startsWith("model")) {
+      var data = JSON.parse(body);
+      rsp.success = true;
+      rsp.message = "Your Boards";
+      rsp.data = data;
+      res.status(200).json(rsp)
+    } else {
+      rsp.success = false;
+      rsp.message = "Organization not found";
+      res.status(200).json(rsp)
+    }
+
   });
 })
 
