@@ -10,23 +10,29 @@ $(document).ready(function() {
   $("body").addClass("iosBugFixCaret");
   $('.parallax').parallax();
 
+  var is_log = localStorage.getItem("is_log");
+
   if (document.location.pathname == "/") {
-    loadHome()
+    loadHome(is_log)
   } else if (document.location.pathname.startsWith("/organization")) {
-    loadOrganization()
+    loadOrganization(is_log)
   }
 });
 
-function loadHome() {
+function loadHome(is_log) {
   //loadHome
+  if (is_log == "true") {
+    $('#login-userButton').html("<span class=\"glyphicon glyphicon-user\"></span> " + localStorage.getItem("username"))
+    $("#login-userButton").attr("onclick", "logout()");
+  }
+  $(".message-container").hide()
 }
-
 
 $('#searchBarContainer > input').on('keypress', function(e){
   if (e.keyCode == 13) {
-    loadOrganization()
+    loadOrganization(localStorage.getItem("is_log"))
     localStorage.setItem("organization", $(this).val());
-    window.history.pushState({},'', "organization=" + $(this).val());
+    window.history.pushState({},'', "");
   }
   $('html').animate({
         scrollTop: $("#searchBarContainer").offset().top},
@@ -37,24 +43,29 @@ $('#searchBarContainer > input').on('keypress', function(e){
 
 
 
-function loadOrganization() {
-  $.ajax({
-    url: '/api/trello/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
-    success: function(res) {
-      if (res.success) {
-        $("#error").html("");
-        $("#playGame").html("");
-        getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
-      } else {
-        $("#players").html("");
-        $("#playGame").html("");
-        $("#error").append("<p>" + res.message + "</p>");
+function loadOrganization(is_log) {
+  window.history.pushState({},'', "organization=" + localStorage.getItem("organization"));
+  if (is_log == "true") {
+    $(".message-container").show()
+    $.ajax({
+      url: '/api/trello/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+      success: function(res) {
+        if (res.success) {
+          $("#error").html("");
+          getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
+        } else {
+          $("#players").html("");
+          $("#error").html("<p>" + res.message + "</p>");
+        }
+      },
+      error: function(err) {
+        console.log("Error: " + err);
       }
-    },
-    error: function(err) {
-      console.log("Error: " + err);
-    }
-  });
+    });
+  }
+  else {
+    $("#error").append("<p>Effettua il login per continuare</p>");
+  }
 }
 
 function getBoards(organization, token) {
@@ -65,9 +76,7 @@ function getBoards(organization, token) {
         var index = 1;
         for (var i = 0; i < res.data.length; i++) {
           if (res.data[i].name != "Scatola") {
-
             $("#players").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"...\" alt=\"Card image cap\"> <div class=\"card-body\"> <h5 class=\"card-title\">" + res.data[i].name + "</h5> <p class=\"card-text\">Some quick example text to build on the card title and make up the bulk of the card's content.</p><a href=\"javascript:void(0)\" class=\"btn btn-primary\" onClick=loadPlayer(\"" + res.data[i].id + "\")>Play!</a></div></div>")
-            //$("#players").append("<button onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].id + "</button>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);
@@ -85,12 +94,11 @@ function loadPlayer(id) {
   localStorage.setItem("playerBoardId", id);
   $("#players").html("");
   $("#error").html("");
-  $("#playGame").append("<p>Giochiamo " + localStorage.getItem("username") + "!<br>Board ID: " + localStorage.getItem("playerBoardId") +"</p>")
   $(".Trello-cards").show()
   $("#dice").show()
 }
 
-$("#dice").on("click", function () {
+$("#launchDice").on("click", function () {
   var result = Math.floor(Math.random() * 12) + 1;
   localStorage.setItem("dadi", result);
   $("#result").html(result);
