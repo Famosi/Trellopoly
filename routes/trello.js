@@ -2,12 +2,12 @@ var express = require('express');
 var request = require('request');
 var router = express.Router();
 
-var ScatolaBoardId
+var ScatolaBoardId //id board scatola
 
-var listPlayerPositionId
-var listPlanciaId
+var listPlayerPositionId //id lista posizione in board giocatore
+var listPlanciaId //id lista plancia in Scatola
 
-var cardPlayerPosition
+var cardPlayerPosition //id card posizione attuale del giocatore
 
 
 //Get user organizations

@@ -56,18 +56,21 @@
         <input type="text" class="input-organization" placeholder="Trello organization..." onfocus="this.select()">
       </div>
       <div class="message-container">
-        <div id="players"></div>
+        <div class="players">
+          <h5 class="message"></h5>
+          <div class="players-container"></div>
+        </div>
         <div id="error"></div>
       </div>
     </div>
   </div>
   <div class="container-fluid">
     <div class="Trello-cards">
-      <div class="card" style="width: 18rem;">
+      <div class="card col-xs-12 col-sm-8 col-md-6 col-lg-3" style="width: 18rem;">
         <div class="cardimg">
           <img class="card-img-top" id="diceimg" src="https://images-na.ssl-images-amazon.com/images/I/41xzNPtHDtL._SX466_.jpg" alt="Card image dadi">
         </div>
-        <div class="dice" style="text-align: center;">
+        <div class="anchor-container" style="text-align: center;">
           <a href="#" class="btn btn-primary" id="launchDice">Lancia Dadi</a>
         </div>
       </div>
