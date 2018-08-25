@@ -1,0 +1,23 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding-bottom: 1.2em;
+  font-size: medium;
+  line-height: 1.5;
+}
+
+#dice,
+.Trello-cards{
+  display: none
+}
+
+.container-fluid {
+  padding-top: 20px;
+}
+
+.white-space{
+  height: 300px;
+}
+
+.card{
+  margin: 20px;
+}

@@ -8,55 +8,86 @@
   <meta name="HandheldFriendly" content="true" />
   <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
   <link rel="stylesheet" href="/Stylesheets/navbar.css" type="text/css" />
   <link rel="stylesheet" href="/Stylesheets/btns.css" type="text/css" />
+  <link rel="stylesheet" href="/Stylesheets/viewStyle.css" type="text/css" />
 </head>
 
 <body>
-
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
+  <nav class="navbar navbar-findcond navbar-fixed-top" role="navigation">
+    <div class="container">
+      <!--container-fluid Brand and toggle get grouped for better mobile display -->
+      <!-- COLLAPSE -->
       <div class="navbar-header">
-        <span class="navbar-brand">TrelloPoly</span>
+        <div class="collapsed menuicon" data-target="#st-navbar-collapse-top">
+          <div class="borderCollapse">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#st-button-collapse-top">
+              <span class="menuicon-street menuicon-street-top">
+                <span class="menuicon-street-saltire menuicon-street-saltire-top"></span>
+              </span>
+              <span class="menuicon-street menuicon-street-bottom">
+                <span class="menuicon-street-saltire menuicon-street-saltire-bottom"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <span class="navbar-brand" style="cursor: pointer">Trellopoly</span>
       </div>
-      <div class="login-right">
+
+      <!-- COLLAPSE -->
+      <div class="collapse navbar-collapse" id="st-button-collapse-top">
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <a class="loggedout" id="login" href="javascript:void(0)">
+            <a id="login-userButton" href="javascript:void(0)" onclick="login();">
               <span class="glyphicon glyphicon-user"></span> Login</a>
-          </li>
-          <li>
-            <a class="loggedin" id="logout" href="javascript:void(0)">
-              <span class="glyphicon glyphicon-user"></span> Username</a>
           </li>
         </ul>
       </div>
-    </div>
   </nav>
 
-  <div class="HomeLogin">
-      <input type="text" id="organizationName" placeholder="Organization...">
-      <input type="button" id="button" value="send!">
-      <br>
-      <br>
+  <div class="parallax-container">
+    <div class="parallax"><img src="http://data.websitebox.com/data/users/0020/285/uploads/monopoly-board-game.jpg"></div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="Homeview">
+      <div id="searchBarContainer">
+        <input type="text" class="input-organization" placeholder="Trello organization..." onfocus="this.select()">
+      </div>
       <div id="players"></div>
       <div id="error"></div>
       <div id="playGame"></div>
-      <div class="btns">
-        <div class="dadi">
-          <button>Lancia dadi</button>
-          <p id="result"></p>
-        </div>
-
+    </div>
+    <div class="container-fluid dice">
+      <div id="dice">
+        <button id="launchDice">Lancia dadi</button>
+        <p id="result"></p>
       </div>
+    </div>
   </div>
+  <div class="container-fluid">
+    <div class="Trello-cards">
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="..." alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">Card title</h5>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="#" class="btn btn-primary">Go somewhere</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="white-space"></div>
 
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://trello.com/1/client.js?key=4dd8f72d0f8b9dfb50ac4131b768ff3d"></script>
   <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script data-main="/js/facilities/require-config" src="/js/facilities/require.js"></script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+  <script data-main="/js/facilities/require-config" src="/js/facilities/require.js"></script>
   <script type="text/javascript" src="/js/visualizer.js"></script>
   <script type="text/javascript" src="/js/input.js"></script>
   <script type="text/javascript" src="/js/login.js"></script>
+
 </html>

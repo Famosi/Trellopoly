@@ -1,3 +1,4 @@
+var oldPositionIndex = 1;
 
 $(document).ready(function() {
   /* Detect ios 11_0_x affected
@@ -7,8 +8,8 @@ $(document).ready(function() {
   /* iOS 11 bug caret position */
   if ( iOS && iOS11 )
   $("body").addClass("iosBugFixCaret");
+  $('.parallax').parallax();
 
-  var is_log = Trello.authorized();
   if (document.location.pathname == "/") {
     loadHome()
   } else if (document.location.pathname.startsWith("/organization")) {
@@ -17,14 +18,24 @@ $(document).ready(function() {
 });
 
 function loadHome() {
-
+  //loadHome
 }
 
-$("#button").click(function() {
-  loadOrganization()
-  localStorage.setItem("organization", $('#organizationName').val());
-  window.history.pushState({},'', "organization="+localStorage.getItem("organization"));
-})
+
+$('#searchBarContainer > input').on('keypress', function(e){
+  if (e.keyCode == 13) {
+    loadOrganization()
+    localStorage.setItem("organization", $(this).val());
+    window.history.pushState({},'', "organization=" + $(this).val());
+  }
+  $('html').animate({
+        scrollTop: $("#searchBarContainer").offset().top},
+        'slow');
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
+});
+
+
+
 
 function loadOrganization() {
   $.ajax({
@@ -35,7 +46,6 @@ function loadOrganization() {
         $("#playGame").html("");
         getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
       } else {
-        console.log(res.message);
         $("#players").html("");
         $("#playGame").html("");
         $("#error").append("<p>" + res.message + "</p>");
@@ -47,17 +57,17 @@ function loadOrganization() {
   });
 }
 
-
 function getBoards(organization, token) {
   $.ajax({
     url: '/api/trello/boards?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
-        console.log(res.data[0].name);
         var index = 1;
         for (var i = 0; i < res.data.length; i++) {
           if (res.data[i].name != "Scatola") {
-            $("#players").append("<button class=\"player" + index + "\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</button>");
+
+            $("#players").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"...\" alt=\"Card image cap\"> <div class=\"card-body\"> <h5 class=\"card-title\">" + res.data[i].name + "</h5> <p class=\"card-text\">Some quick example text to build on the card title and make up the bulk of the card's content.</p><a href=\"javascript:void(0)\" class=\"btn btn-primary\" onClick=loadPlayer(\"" + res.data[i].id + "\")>Play!</a></div></div>")
+            //$("#players").append("<button onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].id + "</button>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);
@@ -72,44 +82,62 @@ function getBoards(organization, token) {
 }
 
 function loadPlayer(id) {
-  console.log(id);
   localStorage.setItem("playerBoardId", id);
   $("#players").html("");
   $("#error").html("");
   $("#playGame").append("<p>Giochiamo " + localStorage.getItem("username") + "!<br>Board ID: " + localStorage.getItem("playerBoardId") +"</p>")
-  $(".btns").show()
+  $(".Trello-cards").show()
+  $("#dice").show()
 }
 
-$(".dadi").on("click", function () {
+$("#dice").on("click", function () {
   var result = Math.floor(Math.random() * 12) + 1;
   localStorage.setItem("dadi", result);
   $("#result").html(result);
   movePlayer(result);
 })
 
-function movePlayer(n){
-  getPosition(n)
-
-}
-
-function getPosition(n) {
+function movePlayer(n) {
   $.ajax({
     url: '/api/trello/position?id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
-        console.log(res.position);
-        var newPosition = 1 + n
+        var oldPosition = res.cardId
+        var oldPositionName = res.position
+        console.log("Actual position: " + oldPositionName);
+        console.log("oldIndex: " + oldPositionIndex);
+        oldPositionIndex += n
+        if (oldPositionIndex > 40) {
+          oldPositionIndex = oldPositionIndex - 40
+        }
+        console.log("newIndex: " + oldPositionIndex);
+        console.log(oldPositionIndex);
         $.ajax({
-          url: '/api/trello/move?newPosition=' + newPosition + '&token=' + localStorage.getItem("token"),
+          url: '/api/trello/move?newPosition=' + oldPositionIndex + '&id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
           success: function (res) {
-            console.log(rsp.message);
+            console.log(res.newPosition);
+            archiveOldPosition(oldPosition, oldPositionName);
           },
-          error: function (res) {
+          error: function (err) {
             console.log("Error getPositionIn: " + err);
           }
         });
       } else {
 
+      }
+    },
+    error: function(err) {
+      console.log("Error getPosition: " + err);
+    }
+  });
+}
+
+function archiveOldPosition(cardId, cardName) {
+  $.ajax({
+    url: '/api/trello/archive?cardId=' + cardId + '&token=' + localStorage.getItem("token"),
+    success: function(res) {
+      if (res.success) {
+        console.log("Archive " + cardName);
       }
     },
     error: function(err) {

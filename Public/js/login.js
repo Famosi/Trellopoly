@@ -1,37 +1,41 @@
-
 var onAuthorize = function() {
   Trello.members.get("me", function(member) {
-      localStorage.setItem("username", member.fullName)
-      localStorage.setItem("token", Trello.token())
+    localStorage.setItem("username", member.fullName)
+    localStorage.setItem("token", Trello.token())
+    $('#login-userButton').html("<span class=\"glyphicon glyphicon-user\"></span> " + localStorage.getItem("username"))
+    $("#login-userButton").attr("onclick", "logout()");
   });
-  $('#logout').html("<span class=\"glyphicon glyphicon-user\"></span> " + localStorage.getItem("username"))
 };
 
 var onError = function() {
   alert("no Auth")
 }
 
-var logout = function() {
-    Trello.deauthorize();
-};
-
+/*
 Trello.authorize({
-    interactive: false,
-    success: onAuthorize
+  interactive: false,
+  success: onAuthorize
 });
+*/
 
+function login() {
+  Trello.authorize({
+    type: "popup",
+    name: "TrelloPoly",
+    scope: {
+      read: true,
+      write: true
+    },
+    success: onAuthorize,
+    error: onError
+  });
+}
 
-$("#login").click(function() {
-    Trello.authorize({
-        type: "popup",
-        name: "TrelloPoly",
-        scope: {
-          read: true,
-          write: true
-        },
-        success: onAuthorize,
-        error: onError
-    });
-});
-
-$("#logout").click(logout);
+function logout() {
+  Trello.deauthorize();
+  localStorage.setItem("username", null)
+  localStorage.setItem("token", null)
+  $('#login-userButton').html("<span class=\"glyphicon glyphicon-user\"></span> Login")
+  $("#login-userButton").attr("onclick", "login()");
+  location.reload();
+}

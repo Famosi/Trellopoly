@@ -115,7 +115,50 @@ router.get("/move*", function(req, res) {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    console.log(data[req.query.newPosition]);
+    var newPositionIndex = req.query.newPosition
+    console.log(newPositionIndex);
+
+    var newPositionId = data[newPositionIndex - 1].id
+
+    //Move player
+    var newPositionName = data[newPositionIndex - 1].name
+    console.log("newPosition: " + newPositionName);
+
+    var moveOptions = {
+      method: 'POST',
+      url: 'https://api.trello.com/1/cards?idCardSource=' + newPositionId + '&idList=' + listPlayerPositionId,
+      qs: {
+        key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+        token: req.query.token
+      }
+    };
+    request(moveOptions, function (error, response, body) {
+      if (error) throw new Error(error);
+      var data = JSON.parse(body);
+      rsp.success = true;
+      rsp.newPosition = newPositionName;
+      res.status(200).json(rsp);
+    });
+  });
+})
+
+router.get("/archive*", function(req, res) {
+  var rsp = {};
+  var options = {
+    method: 'PUT',
+    url: 'https://api.trello.com//1/cards/' + req.query.cardId + '/closed?value=true',
+    qs: {
+      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      token: req.query.token
+    }
+  };
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+    var data = JSON.parse(body);
+    console.log("Archived");
+    rsp.success = true
+    res.status(200).json(rsp);
   });
 })
 
@@ -171,7 +214,6 @@ function checkScatola(options, token) {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
     var lists = JSON.parse(body);
-    console.log(lists);
     var play = true
     for (var i = 0; i < lists.length; i++) {
       if (lists[i].name != "Plancia" && lists[i].name != "Contratti" && lists[i].name != "Imprevisti/Probabilità" && lists[i].name != "Banca" && lists[i].name != "Istruzioni" ) {
