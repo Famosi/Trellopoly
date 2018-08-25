@@ -47,10 +47,11 @@ function loadOrganization(is_log) {
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     $(".message-container").show()
     $.ajax({
-      url: '/api/trello/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+      url: '/api/game/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
       success: function(res) {
         if (res.success) {
           $("#error").html("");
+          initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
           getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
         } else {
           $("#players").html("");
@@ -70,14 +71,20 @@ function loadOrganization(is_log) {
 function getBoards(organization, token) {
   $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/trello/boards?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    url: '/api/game/boards?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
-        $(".players > .message").text("Scegli il giocatore")
+        $(".players > .message").text("Scegli la pedina:")
         var index = 1;
         for (var i = 0; i < res.data.length; i++) {
           if (res.data[i].name != "Scatola") {
-            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"http://www.ferreromaurizio.it/blog/wp-content/uploads/2016/12/monopoli.jpg\" alt=\"Card image cap\"> <div class=\"card-body\"> <h5 class=\"card-title\">" + res.data[i].name + "</h5> <p class=\"card-text\">Some quick example text to build on the card title and make up the bulk of the card's content.</p><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"btn btn-primary\" onClick=loadPlayer(\"" + res.data[i].id + "\")>Play!</a></div></div></div>")
+            var imgsrc
+            if (res.data[i].name == "Fiasco") {
+              imgsrc = "https://c1.staticflickr.com/8/7293/8830540164_63f3fd8bb3_b.jpg"
+            } else if (res.data[i].name == "Paolo") {
+              imgsrc = "http://www.ferreromaurizio.it/blog/wp-content/uploads/2016/12/monopoli.jpg"
+            }
+            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"btn btn-primary\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);
@@ -90,6 +97,42 @@ function getBoards(organization, token) {
     }
   });
 }
+
+function initGame(organization, token) {
+  $("#progressmsg").text("Inizializzo la partita...")
+  moveBar()
+  setStartPosition(organization, token)
+}
+
+function setStartPosition(organization, token) {
+  console.log("setStartPosition");
+  $.ajax({
+    url: '/api/init/initialize?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    success: function(res) {
+      if (res.success) {
+
+      }
+    },
+    error: function(err) {
+      console.log("Error getBoards: " + err);
+    }
+  });
+}
+
+function moveBar() {
+    var elem = document.getElementById("myBar");
+    var width = 1;
+    var id = setInterval(frame, 5);
+    function frame() {
+        if (width >= 100) {
+            clearInterval(id);
+        } else {
+            width++;
+            elem.style.width = width + '%';
+        }
+    }
+}
+
 
 function loadPlayer(id) {
   localStorage.setItem("playerBoardId", id);
@@ -108,7 +151,7 @@ $("#launchDice").on("click", function (e) {
 
 function movePlayer(n) {
   $.ajax({
-    url: '/api/trello/position?id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
+    url: '/api/game/position?id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
         var oldPosition = res.cardId
@@ -122,7 +165,7 @@ function movePlayer(n) {
         console.log("newIndex: " + oldPositionIndex);
         console.log(oldPositionIndex);
         $.ajax({
-          url: '/api/trello/move?newPosition=' + oldPositionIndex + '&id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
+          url: '/api/game/move?newPosition=' + oldPositionIndex + '&id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
           success: function (res) {
             console.log(res.newPosition);
             archiveOldPosition(oldPosition, oldPositionName);
@@ -143,7 +186,7 @@ function movePlayer(n) {
 
 function archiveOldPosition(cardId, cardName) {
   $.ajax({
-    url: '/api/trello/archive?cardId=' + cardId + '&token=' + localStorage.getItem("token"),
+    url: '/api/game/archive?cardId=' + cardId + '&token=' + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
         console.log("Archive " + cardName);

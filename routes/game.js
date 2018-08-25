@@ -109,7 +109,6 @@ router.get("/position*", function(req, res) {
 
 router.get("/move*", function(req, res) {
   var rsp = {};
-  console.log("moving..");
   var options = {
     method: 'GET',
     url: 'https://api.trello.com/1/lists/' +  listPlanciaId + '/cards/',
@@ -123,7 +122,6 @@ router.get("/move*", function(req, res) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     var newPositionIndex = req.query.newPosition
-    console.log(newPositionIndex);
 
     var newPositionId = data[newPositionIndex - 1].id
 

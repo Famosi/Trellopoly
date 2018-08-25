@@ -8,9 +8,33 @@ body {
 #diceimg{
   width: 100%;
 }
+/*
+.progressBar{
+  display: none;
+}*/
+
+#myProgress {
+    width: 100%;
+}
+
+#myBar {
+    width: 0%;
+    height: 10px;
+    background-color: #26a69a;
+    radius: 10px;
+}
+
+h5{
+  margin: 3.093333rem 0 .656rem 0;
+}
+
+.anchor-container > .btn{
+  width: 100%;
+}
 
 img.card-img-top {
     width: 100%;
+    margin-bottom: 20px;
 }
 
 img.cardimg{
