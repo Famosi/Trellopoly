@@ -55,6 +55,7 @@ function loadOrganization(is_log) {
           getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
         } else {
           $("#players").html("");
+          $("#error").show();
           $("#error").html("<p>" + res.message + "</p>");
         }
       },
