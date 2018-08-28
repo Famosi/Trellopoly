@@ -8,6 +8,7 @@ $(document).ready(function() {
   /* iOS 11 bug caret position */
   if ( iOS && iOS11 )
   $("body").addClass("iosBugFixCaret");
+
   $('.parallax').parallax();
 
   var is_log = localStorage.getItem("is_log");
@@ -167,7 +168,7 @@ $("#launchDice").on("click", function (e) {
   e.preventDefault();
   var result = Math.floor(Math.random() * 12) + 1;
   localStorage.setItem("dadi", result);
-  $("#result").html(result);
+  $("#resultDice").text(result);
   movePlayer(result);
 })
 

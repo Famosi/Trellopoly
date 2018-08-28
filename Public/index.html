@@ -58,7 +58,15 @@
 
       <!--
       ==================================== SCELTA GIOCATORI?!?!?! ====================================
-      -->
+      <div class="input-field col s12">
+        <select>
+          <option value="" disabled selected>Choose number of players</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      ======================================================================== -->
 
       <div id="searchBarContainer">
         <input type="text" class="input-organization" placeholder="Trello organization..." onfocus="this.select()">
@@ -82,6 +90,7 @@
         <div class="cardimg">
           <img class="card-img-top" id="diceimg" src="https://images-na.ssl-images-amazon.com/images/I/41xzNPtHDtL._SX466_.jpg" alt="Card image dadi">
         </div>
+        <h5 id="resultDice" style="text-align: center;"></h5>
         <div class="anchor-container" style="text-align: center;">
           <a href="#" class="btn btn-primary" id="launchDice">Lancia Dadi</a>
         </div>

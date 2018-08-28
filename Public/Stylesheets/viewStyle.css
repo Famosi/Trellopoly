@@ -21,6 +21,14 @@ body {
     radius: 10px;
 }
 
+#resultDice{
+  margin: -4.906667rem 0 .656rem 0;
+}
+
+select{
+  display: block!important;
+}
+
 h5{
   margin: 3.093333rem 0 .656rem 0;
 }
