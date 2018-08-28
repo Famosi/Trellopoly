@@ -118,6 +118,7 @@ function initContratti(idList, token, callback) {
   });
 }
 
+//All Player's contracts in Scatola
 function moveContratti(idList, data, idBoard, token, callback) {
   for (var i = 0; i < data.length; i++) {
     var optionsMove = {
