@@ -54,3 +54,14 @@ img.cardimg{
 .card{
   margin: 20px;
 }
+
+@media screen and (max-width:420px) {
+
+  .parallax-container {
+      margin-bottom: -35%;
+  }
+
+  .parallax{
+    height: 60%;
+  }
+}
