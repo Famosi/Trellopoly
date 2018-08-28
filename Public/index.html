@@ -15,6 +15,7 @@
 </head>
 
 <body>
+  <!-- NAVBAR -->
   <nav class="navbar navbar-findcond navbar-fixed-top" role="navigation">
     <div class="container">
       <!--container-fluid Brand and toggle get grouped for better mobile display -->
@@ -45,13 +46,29 @@
         </ul>
       </div>
   </nav>
+  <!-- NAVBAR -->
 
+  <!-- PARALLAX -->
   <div class="parallax-container">
     <div class="parallax"><img src="http://data.websitebox.com/data/users/0020/285/uploads/monopoly-board-game.jpg"></div>
   </div>
-
+  <!-- PARALLAX -->
   <div class="container-fluid">
     <div class="Homeview">
+
+      <!--
+      <form class="numberOfPlayer" method="get" action="/api/game/NoP">
+        <select name="nplayers" id="nplayers">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+        <input type="submit" name="submit" value="submit">
+      </form>
+      -->
+
       <div id="searchBarContainer">
         <input type="text" class="input-organization" placeholder="Trello organization..." onfocus="this.select()">
       </div>
@@ -82,7 +99,6 @@
   </div>
   </div>
   <div class="white-space"></div>
-
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://trello.com/1/client.js?key=4dd8f72d0f8b9dfb50ac4131b768ff3d"></script>

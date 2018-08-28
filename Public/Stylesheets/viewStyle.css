@@ -7,11 +7,8 @@ body {
 
 #diceimg{
   width: 100%;
+  height: inherit;
 }
-/*
-.progressBar{
-  display: none;
-}*/
 
 #myProgress {
     width: 100%;
@@ -34,6 +31,7 @@ h5{
 
 img.card-img-top {
     width: 100%;
+    height: 165px;
     margin-bottom: 20px;
 }
 

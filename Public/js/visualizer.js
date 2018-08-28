@@ -74,6 +74,7 @@ function getBoards(organization, token) {
     url: '/api/game/boards?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
+        $("#progressmsg").hide()
         $(".players > .message").text("Scegli la pedina:")
         var index = 1;
         for (var i = 0; i < res.data.length; i++) {
@@ -81,8 +82,8 @@ function getBoards(organization, token) {
             var imgsrc
             if (res.data[i].name == "Fiasco") {
               imgsrc = "https://c1.staticflickr.com/8/7293/8830540164_63f3fd8bb3_b.jpg"
-            } else if (res.data[i].name == "Paolo") {
-              imgsrc = "http://www.ferreromaurizio.it/blog/wp-content/uploads/2016/12/monopoli.jpg"
+            } else if (res.data[i].name == "Fungo") {
+              imgsrc = "https://www.corriere.it/methode_image/socialshare/2017/01/11/882224ac-d819-11e6-9dfa-46bea8378d9f.jpg"
             }
             $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"btn btn-primary\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
             index++
@@ -138,7 +139,27 @@ function loadPlayer(id) {
   localStorage.setItem("playerBoardId", id);
   $(".players").html("");
   $("#error").html("");
-  $(".Trello-cards").show()
+  giveContratti(id, function () {
+    $("#progressmsg").hide()
+    $(".Trello-cards").show()
+  })
+}
+
+function giveContratti(id, callback) {
+  moveBar()
+  $("#progressmsg").text("Distribuendo i contratti..")
+  $("#progressmsg").show()
+  $.ajax({
+    url: '/api/init/contratti?boardId=' + id + '&token=' + localStorage.getItem("token"),
+    success: function(res) {
+      if (res.success) {
+        callback();
+      }
+    },
+    error: function(err) {
+      console.log("Error getPosition: " + err);
+    }
+  });
 }
 
 $("#launchDice").on("click", function (e) {

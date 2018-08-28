@@ -161,7 +161,6 @@ router.get("/archive*", function(req, res) {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    console.log("Archived");
     rsp.success = true
     res.status(200).json(rsp);
   });
