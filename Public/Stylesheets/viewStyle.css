@@ -14,9 +14,7 @@ body {
     width: 100%;
 }
 
-.Homeview{
-  margin-top: 20%;
-}
+
 
 #myBar {
     width: 0%;
@@ -76,5 +74,9 @@ img.cardimg{
 
   .parallax{
     height: 60%;
+  }
+
+  .Homeview{
+    margin-top: 40%;
   }
 }
