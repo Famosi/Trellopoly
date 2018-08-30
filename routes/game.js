@@ -10,34 +10,7 @@ var listPlanciaId //id lista plancia in Scatola
 var cardPlayerPosition //id card posizione attuale del giocatore
 
 
-//Get user organizations
-router.get("/organization*", function(req, res) {
-  var options = {
-    method: 'GET',
-    url: 'https://api.trello.com/1/members/me' + '/organizations/',
-    qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
-      token: req.query.token
-    }
-  };
 
-  request(options, function (error, response, body) {
-    var rsp = {}
-    if (error) throw new Error(error);
-    var data = JSON.parse(body);
-    if (checkOrg(data, req.query.organization)) {
-      if (getBoards(req.query.organization, req.query.token)) {
-        rsp.success = true;
-        rsp.message = "Ok to play!";
-        res.status(200).json(rsp);
-      }
-    } else {
-      rsp.success = false;
-      rsp.message = "You are not a member of this Organization";
-      res.status(200).json(rsp);
-    }
-  });
-})
 
 router.get("/board*", function(req, res) {
   var rsp = {};
@@ -166,103 +139,7 @@ router.get("/archive*", function(req, res) {
   });
 })
 
-//Get logged user boards
-function getBoards(organization, token) {
-  var play = true
-  var options = {
-    method: 'GET',
-    url: 'https://api.trello.com/1/organization/' +  organization + '/boards/',
-    qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
-      token: token
-    }
-  };
 
-  request(options, function (error, response, body) {
-    if (error) throw new Error(error);
-    var boards = JSON.parse(body);
-    if (!checkBoards(boards, token)) {
-      play = false
-    }
-  });
-  return play
-}
-
-//Check if Boards are ok
-function checkBoards(boards, token) {
-  var play = true
-  for (var i = 0; i < boards.length; i++) {
-    var options = {
-      method: 'GET',
-      url: 'https://api.trello.com/1/boards/' +  boards[i].id + '/lists?filter=open',
-      qs: {
-        key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
-        token: token
-      }
-    };
-    if (boards[i].name == "Scatola") {
-      if (!checkScatola(options, token)) {
-        play = false
-      }
-    } else {
-      if (!checkPlayer(options, token)){
-        play = false
-      }
-    }
-  }
-  return play
-}
-
-//Check if Board is ok
-function checkScatola(options, token) {
-  request(options, function (error, response, body) {
-    if (error) throw new Error(error);
-    var lists = JSON.parse(body);
-    var play = true
-    for (var i = 0; i < lists.length; i++) {
-      if (lists[i].name != "Plancia" && lists[i].name != "Contratti" && lists[i].name != "Imprevisti/Probabilità" && lists[i].name != "Banca" && lists[i].name != "Istruzioni" ) {
-        var play = false
-      }
-    }
-    if (play) {
-      listPlanciaId = lists[0].id
-      return true
-    } else {
-      console.log("Can't Play");
-      return false
-    }
-  });
-}
-
-//Check if Board is ok
-function checkPlayer(options, token) {
-  request(options, function (error, response, body) {
-    if (error) throw new Error(error);
-    var lists = JSON.parse(body);
-    var play = true
-    for (var i = 0; i < lists.length; i++) {
-      if (lists[i].name != "Contratti" && lists[i].name != "Posizione" && lists[i].name != "Soldi") {
-        var play = false
-      }
-    }
-    if (play) {
-      return true
-    } else {
-      console.log("Can't Play");
-      return false
-    }
-  });
-}
-
-//Check if user is member of this organization
-function checkOrg(data, organization) {
-  for (var i = 0; i < data.length; i++) {
-    if (data[i].name == organization) {
-      return true
-    }
-  }
-  return false
-}
 
 
 module.exports = router;

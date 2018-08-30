@@ -27,7 +27,7 @@ $(document).ready(function() {
 
 function loadHome(is_log) {
   //loadHome
-  $("#searchBarContainer").show();
+  $("#searchBarContainer").hide();
   $(".message-container").hide()
 }
 
@@ -39,6 +39,20 @@ $('#searchBarContainer > input').on('keypress', function(e){
   }
 });
 
+$("#numberOP").on("change", function (select) {
+  var nop = select.currentTarget.value
+  $(".input-field").hide()
+  $("#searchBarContainer").show()
+  $.ajax({
+    url: '/api/init/nop?nop=' + nop,
+    success: function(res) {
+      console.log("ok nop");
+    },
+    error: function(err) {
+      console.log("Error: " + err);
+    }
+  });
+})
 
 function loadOrganization(is_log) {
   if (is_log == "true") {
@@ -48,7 +62,7 @@ function loadOrganization(is_log) {
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     $(".message-container").show()
     $.ajax({
-      url: '/api/game/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+      url: '/api/init/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
       success: function(res) {
         if (res.success) {
           $("#error").html("");
