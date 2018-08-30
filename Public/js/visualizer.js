@@ -1,13 +1,35 @@
 var oldPositionIndex = 1;
 
+var host = location.origin.replace(/^http/, 'ws');
+host = host.replace(/8000/, '40510')
+
+var ws = new WebSocket(host);
+
+// event emmited when connected
+ws.onopen = function() {
+  console.log('websocket is connected ...')
+  // sending a send event to websocket server
+  ws.send('connected')
+}
+// event emmited when receiving message
+ws.onmessage = function(msg) {
+  $("#error").html(msg.data);
+  console.log(msg.data);
+  if (msg.data == "Inizializzo la partita...") {
+    moveBar()
+    getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
+  }
+}
+
 $(document).ready(function() {
   /* Detect ios 11_0_x affected
-  * NEED TO BE UPDATED if new versions are affected */
+   * NEED TO BE UPDATED if new versions are affected */
   var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent),
-  iOS11 = /OS 11_0_1|OS 11_0_2|OS 11_0_3|OS 11_1/.test(navigator.userAgent);
+    iOS11 = /OS 11_0_1|OS 11_0_2|OS 11_0_3|OS 11_1/.test(navigator.userAgent);
   /* iOS 11 bug caret position */
-  if ( iOS && iOS11 )
-  $("body").addClass("iosBugFixCaret");
+  if (iOS && iOS11)
+
+    $("body").addClass("iosBugFixCaret");
 
   $('.parallax').parallax();
 
@@ -31,15 +53,15 @@ function loadHome(is_log) {
   $(".message-container").hide()
 }
 
-$('#searchBarContainer > input').on('keypress', function(e){
+$('#searchBarContainer > input').on('keypress', function(e) {
   if (e.keyCode == 13) {
     localStorage.setItem("organization", $(this).val());
-    window.history.replaceState({},'', "organization=" + localStorage.getItem("organization"));
+    window.history.replaceState({}, '', "organization=" + localStorage.getItem("organization"));
     loadOrganization(localStorage.getItem("is_log"))
   }
 });
 
-$("#numberOP").on("change", function (select) {
+$("#numberOP").on("change", function(select) {
   var nop = select.currentTarget.value
   $(".input-field").hide()
   $("#searchBarContainer").show()
@@ -57,17 +79,18 @@ $("#numberOP").on("change", function (select) {
 function loadOrganization(is_log) {
   if (is_log == "true") {
     $('html').animate({
-          scrollTop: $("#searchBarContainer").offset().top},
-          'slow');
+        scrollTop: $("#searchBarContainer").offset().top
+      },
+      'slow');
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     $(".message-container").show()
     $.ajax({
-      url: '/api/init/organization?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+      url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
       success: function(res) {
         if (res.success) {
           $("#error").html("");
           initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
-          getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
+          //getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
         } else {
           $("#players").html("");
           $("#error").show();
@@ -78,16 +101,16 @@ function loadOrganization(is_log) {
         console.log("Error: " + err);
       }
     });
-  }
-  else {
+  } else {
     $("#error").append("<p>Effettua il login per continuare</p>");
   }
 }
 
 function getBoards(organization, token) {
   $("#searchBarContainer").hide()
+  $("#error").html("")
   $.ajax({
-    url: '/api/game/boards?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    url: '/api/game/boards?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
         $("#progressmsg").hide()
@@ -124,7 +147,7 @@ function initGame(organization, token) {
 function setStartPosition(organization, token) {
   console.log("setStartPosition");
   $.ajax({
-    url: '/api/init/initialize?organization='+localStorage.getItem("organization")+"&token=" + localStorage.getItem("token"),
+    url: '/api/init/initialize?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
 
@@ -137,17 +160,18 @@ function setStartPosition(organization, token) {
 }
 
 function moveBar() {
-    var elem = document.getElementById("myBar");
-    var width = 1;
-    var id = setInterval(frame, 5);
-    function frame() {
-        if (width >= 100) {
-            clearInterval(id);
-        } else {
-            width++;
-            elem.style.width = width + '%';
-        }
+  var elem = document.getElementById("myBar");
+  var width = 1;
+  var id = setInterval(frame, 5);
+
+  function frame() {
+    if (width >= 100) {
+      clearInterval(id);
+    } else {
+      width++;
+      elem.style.width = width + '%';
     }
+  }
 }
 
 
@@ -155,7 +179,7 @@ function loadPlayer(id) {
   localStorage.setItem("playerBoardId", id);
   $(".players").html("");
   $("#error").html("");
-  giveContratti(id, function () {
+  giveContratti(id, function() {
     $("#progressmsg").hide()
     $(".Trello-cards").show()
   })
@@ -178,7 +202,7 @@ function giveContratti(id, callback) {
   });
 }
 
-$("#launchDice").on("click", function (e) {
+$("#launchDice").on("click", function(e) {
   e.preventDefault();
   var result = Math.floor(Math.random() * 12) + 1;
   localStorage.setItem("dadi", result);
@@ -203,11 +227,11 @@ function movePlayer(n) {
         console.log(oldPositionIndex);
         $.ajax({
           url: '/api/game/move?newPosition=' + oldPositionIndex + '&id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
-          success: function (res) {
+          success: function(res) {
             console.log(res.newPosition);
             archiveOldPosition(oldPosition, oldPositionName);
           },
-          error: function (err) {
+          error: function(err) {
             console.log("Error getPositionIn: " + err);
           }
         });

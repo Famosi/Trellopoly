@@ -1,7 +1,5 @@
 var express = require('express');
 var request = require('request');
-var app = require('../server')
-var wss = app.get('wss')
 
 const EventEmitter = require('events');
 
@@ -33,7 +31,7 @@ router.get("/organization*", function(req, res) {
     }
   };
 
-  request(options, function (error, response, body) {
+  request(options, function(error, response, body) {
     var rsp = {}
     if (error) throw new Error(error);
     var data = JSON.parse(body);
@@ -50,8 +48,15 @@ router.get("/organization*", function(req, res) {
         console.log(organizations.org);
         if (organizations.org == nop) {
           rsp.success = true;
+          rsp.wait = false;
           rsp.message = "Inizializzo la partita...";
-          wss.broadcast(rsp)
+          sendBroadcast(rsp)
+          res.status(200).json(rsp)
+        } else {
+          rsp.message = "Attendo giocatori...";
+          rsp.success = true
+          rsp.wait = true;
+          sendBroadcast(rsp)
         }
       }
     } else {
@@ -62,7 +67,12 @@ router.get("/organization*", function(req, res) {
   });
 })
 
-
+function sendBroadcast(msg) {
+  var wss = app.get("wss")
+  wss.clients.forEach(function each(client) {
+    client.send(msg.message);
+  });
+}
 
 router.get("/initialize*", function(req, res) {
   var options = {
@@ -88,7 +98,7 @@ router.get("/initialize*", function(req, res) {
   });
 });
 
-router.get("/nop", function (req, res) {
+router.get("/nop", function(req, res) {
   nop = req.query.nop
 });
 
@@ -112,7 +122,7 @@ router.get("/contratti*", function(req, res) {
     var data = JSON.parse(body);
     idList = data[0].id
 
-    initContratti(idList, token, function () {
+    initContratti(idList, token, function() {
       var optionsListContratti = {
         method: 'GET',
         url: "https://api.trello.com/1/lists/" + idListContrattiScatola + "/cards",
@@ -164,7 +174,7 @@ function initContratti(idList, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    moveContratti(idListContrattiScatola, data, idBoardScatola, token, function () {
+    moveContratti(idListContrattiScatola, data, idBoardScatola, token, function() {
       callback()
     })
   });
@@ -298,14 +308,14 @@ function getBoards(organization, token) {
   var play = true
   var options = {
     method: 'GET',
-    url: 'https://api.trello.com/1/organization/' +  organization + '/boards/',
+    url: 'https://api.trello.com/1/organization/' + organization + '/boards/',
     qs: {
       key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
       token: token
     }
   };
 
-  request(options, function (error, response, body) {
+  request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var boards = JSON.parse(body);
     if (!checkBoards(boards, token)) {
@@ -321,7 +331,7 @@ function checkBoards(boards, token) {
   for (var i = 0; i < boards.length; i++) {
     var options = {
       method: 'GET',
-      url: 'https://api.trello.com/1/boards/' +  boards[i].id + '/lists?filter=open',
+      url: 'https://api.trello.com/1/boards/' + boards[i].id + '/lists?filter=open',
       qs: {
         key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
         token: token
@@ -332,7 +342,7 @@ function checkBoards(boards, token) {
         play = false
       }
     } else {
-      if (!checkPlayer(options, token)){
+      if (!checkPlayer(options, token)) {
         play = false
       }
     }
@@ -342,12 +352,12 @@ function checkBoards(boards, token) {
 
 //Check if Board is ok
 function checkScatola(options, token) {
-  request(options, function (error, response, body) {
+  request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var lists = JSON.parse(body);
     var play = true
     for (var i = 0; i < lists.length; i++) {
-      if (lists[i].name != "Plancia" && lists[i].name != "Contratti" && lists[i].name != "Imprevisti/Probabilità" && lists[i].name != "Banca" && lists[i].name != "Istruzioni" ) {
+      if (lists[i].name != "Plancia" && lists[i].name != "Contratti" && lists[i].name != "Imprevisti/Probabilità" && lists[i].name != "Banca" && lists[i].name != "Istruzioni") {
         var play = false
       }
     }
@@ -363,7 +373,7 @@ function checkScatola(options, token) {
 
 //Check if Board is ok
 function checkPlayer(options, token) {
-  request(options, function (error, response, body) {
+  request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var lists = JSON.parse(body);
     var play = true
@@ -390,6 +400,5 @@ function checkOrg(data, organization) {
   }
   return false
 }
-
 
 module.exports = router;
