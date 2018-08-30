@@ -67,6 +67,7 @@ img.cardimg{
 
   .parallax-container {
       margin-bottom: -35%;
+      height: 400px;
   }
 
   .parallax{
