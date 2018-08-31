@@ -36,42 +36,50 @@ router.get("/organization*", function(req, res) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     var org = req.query.organization
+    var token = req.query.token
     if (checkOrg(data, req.query.organization)) {
-      if (getBoards(req.query.organization, req.query.token)) {
-        if (organizations.org != undefined) {
-          if (organizations.org.noc == undefined) {
-            organizations.org.noc = 1
-          } else {
-            organizations.org.noc += 1
-          }
+      getBoards(req.query.organization, req.query.token, function(play) {
+        if (play) {
+          if (organizations.org != undefined) {
+            if (organizations.org.noc == undefined) {
+              organizations.org.noc = 1
+            } else {
+              if (organizations.org.players.find(x => x.id === token) == undefined) {
+                organizations.org.noc += 1
+              }
+            }
+            console.log("Organization: " + organizations.org);
+            console.log("Number of players: " + organizations.org.nop);
+            console.log("Number of connected: " + organizations.org.noc);
 
-          console.log("Organization: " + organizations.org);
-          console.log("Number of players: " + organizations.org.nop);
-          console.log("Number of connected: " + organizations.org.noc);
-
-          if (organizations.org.noc == organizations.org.nop) {
-            rsp.success = true;
-            rsp.wait = false;
-            rsp.message = "Inizializzo la partita...";
-            sendBroadcast(rsp)
-            res.status(200).json(rsp)
-          } else if (organizations.org.noc < organizations.org.nop){
-            rsp.message = "Attendo giocatori...";
-            rsp.success = true
-            rsp.wait = true;
-            sendBroadcast(rsp)
+            if (organizations.org.noc == organizations.org.nop) {
+              rsp.success = true;
+              rsp.wait = false;
+              rsp.message = "Inizializzo la partita...";
+              sendBroadcast(rsp)
+              res.status(200).json(rsp)
+            } else if (organizations.org.noc < organizations.org.nop) {
+              rsp.message = "Attendo giocatori...";
+              rsp.success = true
+              rsp.wait = true;
+              sendBroadcast(rsp)
+            } else {
+              rsp.message = "La partita è gia iniziata";
+              rsp.success = false
+              res.status(200).json(rsp);
+            }
           } else {
-            rsp.message = "La partita è gia iniziata";
+            rsp.message = "Errore interno, torna alla Home e riprova.";
             rsp.success = false
             res.status(200).json(rsp);
           }
         } else {
-          rsp.message = "Errore interno, torna alla Home e riprova.";
-          rsp.success = false
+          console.log("Non è possibile giocare con questo gruppo, controlla le bacheche!");
+          rsp.success = false;
+          rsp.message = "Non è possibile giocare con questo gruppo, controlla le bacheche!";
           res.status(200).json(rsp);
         }
-      }
-
+      })
     } else {
       rsp.success = false;
       rsp.message = "Sembra che tu non faccia parte di questo gruppo!";
@@ -118,6 +126,15 @@ router.get("/nop", function(req, res) {
   if (organizations.org == undefined) {
     organizations.org = {}
   }
+  if (organizations.org.players == undefined) {
+    organizations.org.players = []
+  }
+  var pendingUsr = {
+    id: id
+  }
+  if (organizations.org.players.find(x => x.id === id) == undefined) {
+    organizations.org.players.push(pendingUsr)
+  };
   organizations.org.nop = nop
 });
 
@@ -322,9 +339,9 @@ function archive(idList, token) {
   });
 }
 
+
 //Get logged user boards
-function getBoards(organization, token) {
-  var play = true
+function getBoards(organization, token, callback) {
   var options = {
     method: 'GET',
     url: 'https://api.trello.com/1/organization/' + organization + '/boards/',
@@ -337,17 +354,19 @@ function getBoards(organization, token) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var boards = JSON.parse(body);
-    if (!checkBoards(boards, token)) {
-      play = false
-    }
+    checkBoards(boards, token, function(play) {
+      callback(play)
+    })
   });
-  return play
 }
 
+var operations = 0
 //Check if Boards are ok
-function checkBoards(boards, token) {
-  var play = true
+function checkBoards(boards, token, callback) {
+  operations = 0
+  var len = boards.length
   for (var i = 0; i < boards.length; i++) {
+    console.log(boards[i].name);
     var options = {
       method: 'GET',
       url: 'https://api.trello.com/1/boards/' + boards[i].id + '/lists?filter=open',
@@ -357,55 +376,69 @@ function checkBoards(boards, token) {
       }
     };
     if (boards[i].name == "Scatola") {
-      if (!checkScatola(options, token)) {
-        play = false
-      }
+      checkScatola(options, token, function(play) {
+        console.log("Scatola can play: " + play);
+        done(play, len, callback)
+      })
     } else {
-      if (!checkPlayer(options, token)) {
-        play = false
-      }
+      checkPlayer(options, token, function(play) {
+        console.log("Player can play: " + play);
+        done(play, len, callback)
+      })
     }
   }
-  return play
 }
 
+function done(play, len, callback) {
+  operations++
+  console.log("len: " + len);
+  console.log("operations: " + operations);
+  if (operations == len) {
+    console.log(play);
+    callback(play)
+  }
+}
+
+
+
 //Check if Board is ok
-function checkScatola(options, token) {
+function checkScatola(options, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var lists = JSON.parse(body);
     var play = true
-    for (var i = 0; i < lists.length; i++) {
-      if (lists[i].name != "Plancia" && lists[i].name != "Contratti" && lists[i].name != "Imprevisti/Probabilità" && lists[i].name != "Banca" && lists[i].name != "Istruzioni") {
-        var play = false
+    if (lists.length > 0) {
+      for (var i = 0; i < lists.length; i++) {
+        if (lists[i].name != "Plancia" && lists[i].name != "Contratti" && lists[i].name != "Imprevisti/Probabilità" && lists[i].name != "Banca" && lists[i].name != "Istruzioni") {
+          play = false
+        }
       }
-    }
-    if (play) {
-      listPlanciaId = lists[0].id
-      return true
+      if (play) {
+        listPlanciaId = lists[0].id
+      }
+      callback(play)
     } else {
-      console.log("Can't Play");
-      return false
+      callback(false)
     }
   });
 }
 
+
 //Check if Board is ok
-function checkPlayer(options, token) {
+function checkPlayer(options, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var lists = JSON.parse(body);
     var play = true
-    for (var i = 0; i < lists.length; i++) {
-      if (lists[i].name != "Contratti" && lists[i].name != "Posizione" && lists[i].name != "Soldi") {
-        var play = false
+    if (lists.length > 0) {
+      for (var i = 0; i < lists.length; i++) {
+        if (lists[i].name != "Contratti" && lists[i].name != "Posizione" && lists[i].name != "Soldi") {
+          play = false
+        }
       }
-    }
-    if (play) {
-      return true
+      callback(play)
     } else {
-      console.log("Can't Play");
-      return false
+      callback(false)
     }
   });
 }
