@@ -51,12 +51,18 @@ function loadHome(is_log) {
   //loadHome
   $("#searchBarContainer").hide();
   $(".message-container").hide()
+  $(".input-field").show()
 }
+
+$(".navbar-brand").on("click", function () {
+  window.history.pushState({}, '', "/");
+  loadHome()
+});
 
 $('#searchBarContainer > input').on('keypress', function(e) {
   if (e.keyCode == 13) {
     localStorage.setItem("organization", $(this).val());
-    window.history.replaceState({}, '', "organization=" + localStorage.getItem("organization"));
+    window.history.pushState({}, '', "organization=" + localStorage.getItem("organization"));
     loadOrganization(localStorage.getItem("is_log"))
   }
 });
@@ -66,7 +72,7 @@ $("#numberOP").on("change", function(select) {
   $(".input-field").hide()
   $("#searchBarContainer").show()
   $.ajax({
-    url: '/api/init/nop?nop=' + nop,
+    url: '/api/init/nop?nop=' + nop + "&organization=" + localStorage.getItem("organization"),
     success: function(res) {
       console.log("ok nop");
     },
@@ -77,6 +83,10 @@ $("#numberOP").on("change", function(select) {
 })
 
 function loadOrganization(is_log) {
+  $("#searchBarContainer").hide();
+  $(".message-container").hide();
+  $(".input-field").hide();
+  $("#error").html("");
   if (is_log == "true") {
     $('html').animate({
         scrollTop: $("#searchBarContainer").offset().top

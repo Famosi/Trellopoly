@@ -38,30 +38,43 @@ router.get("/organization*", function(req, res) {
     var org = req.query.organization
     if (checkOrg(data, req.query.organization)) {
       if (getBoards(req.query.organization, req.query.token)) {
+        if (organizations.org != undefined) {
+          if (organizations.org.noc == undefined) {
+            organizations.org.noc = 1
+          } else {
+            organizations.org.noc += 1
+          }
 
-        if (organizations.org == undefined) {
-          organizations.org = 1
-        } else {
-          organizations.org += 1
-        }
+          console.log("Organization: " + organizations.org);
+          console.log("Number of players: " + organizations.org.nop);
+          console.log("Number of connected: " + organizations.org.noc);
 
-        console.log(organizations.org);
-        if (organizations.org == nop) {
-          rsp.success = true;
-          rsp.wait = false;
-          rsp.message = "Inizializzo la partita...";
-          sendBroadcast(rsp)
-          res.status(200).json(rsp)
+          if (organizations.org.noc == organizations.org.nop) {
+            rsp.success = true;
+            rsp.wait = false;
+            rsp.message = "Inizializzo la partita...";
+            sendBroadcast(rsp)
+            res.status(200).json(rsp)
+          } else if (organizations.org.noc < organizations.org.nop){
+            rsp.message = "Attendo giocatori...";
+            rsp.success = true
+            rsp.wait = true;
+            sendBroadcast(rsp)
+          } else {
+            rsp.message = "La partita è gia iniziata";
+            rsp.success = false
+            res.status(200).json(rsp);
+          }
         } else {
-          rsp.message = "Attendo giocatori...";
-          rsp.success = true
-          rsp.wait = true;
-          sendBroadcast(rsp)
+          rsp.message = "Errore interno, torna alla Home e riprova.";
+          rsp.success = false
+          res.status(200).json(rsp);
         }
       }
+
     } else {
       rsp.success = false;
-      rsp.message = "You are not a member of this Organization";
+      rsp.message = "Sembra che tu non faccia parte di questo gruppo!";
       res.status(200).json(rsp);
     }
   });
@@ -99,7 +112,13 @@ router.get("/initialize*", function(req, res) {
 });
 
 router.get("/nop", function(req, res) {
-  nop = req.query.nop
+  var org = req.query.organization
+  var nop = req.query.nop
+  var id = req.query.token
+  if (organizations.org == undefined) {
+    organizations.org = {}
+  }
+  organizations.org.nop = nop
 });
 
 router.get("/contratti*", function(req, res) {
