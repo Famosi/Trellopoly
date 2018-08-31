@@ -76,6 +76,7 @@ $("#numberOP").on("change", function(select) {
     url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
+        console.log(res.isStart);
         if (res.isStart) {
           moveBar()
           $("#error").html("<p>Per ora devi scegliere la stessa pedina di prima</p>");
@@ -111,6 +112,9 @@ function loadOrganization(is_log) {
         if (res.success) {
           $("#error").html("");
           $(".input-field").show();
+          if (res.isSetNop) {
+            eventFire(document.getElementById('numberOP'), 'change');
+          }
           //initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
           //getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
         } else {
@@ -198,7 +202,7 @@ function moveBar() {
 }
 
 
-function loadPlayer(id) {
+function loadPlayer(id, name) {
   localStorage.setItem("playerBoardId", id);
   $(".players").html("");
   $("#error").html("");
@@ -296,4 +300,14 @@ function archiveOldPosition(cardId, cardName) {
       console.log("Error getPosition: " + err);
     }
   });
+}
+
+function eventFire(el, etype){
+  if (el.fireEvent) {
+    el.fireEvent('on' + etype);
+  } else {
+    var evObj = document.createEvent('Events');
+    evObj.initEvent(etype, true, false);
+    el.dispatchEvent(evObj);
+  }
 }

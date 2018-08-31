@@ -10,8 +10,6 @@ const myEmitter = new MyEmitter();
 // increase the limit
 myEmitter.setMaxListeners(15);
 
-var idStartCard
-var idListContrattiScatola
 var cardIndex
 var idBoardScatola
 
@@ -41,10 +39,20 @@ router.get("/organization*", function(req, res) {
       getBoards(req.query.organization, req.query.token, function(play) {
         if (play) {
           rsp.success = true;
+          if (organizations.org != undefined) {
+            var index = organizations.org.findIndex(x => x.name === org)
+            console.log(index);
+            if (index != -1) {
+              if (organizations.org[index].nop != undefined) {
+                rsp.isSetNop = true
+              }
+            }
+          } else {
+            rsp.isSetNop = false
+          }
           rsp.message = "Ok to play";
           res.status(200).json(rsp);
         } else {
-
           rsp.success = false;
           rsp.message = "Non è possibile giocare con questo gruppo, controlla le bacheche!";
           res.status(200).json(rsp);
@@ -66,6 +74,7 @@ function sendBroadcast(msg) {
 }
 
 router.get("/initialize*", function(req, res) {
+  var org = req.query.organization
   var options = {
     method: 'GET',
     url: 'https://api.trello.com/1/members/me' + '/organizations/',
@@ -79,10 +88,15 @@ router.get("/initialize*", function(req, res) {
     var rsp = {}
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    idBoardScatola = data[0].idBoards[0]
-    setIdStardCard(data[0].idBoards[0], req.query.token, function() {
+    var index = organizations.org.findIndex(x => x.name === org)
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].name == org) {
+        organizations.org[index].idBoardScatola = data[i].idBoards[0]
+      }
+    }
+    setIdStartCard(organizations.org[index].idBoardScatola, org, req.query.token, function() {
       for (var i = 1; i < data[0].idBoards.length; i++) {
-        setPosition(data[0].idBoards[i], i, req.query.token)
+        setPosition(organizations.org[index].idBoardScatola, org, i, req.query.token)
       }
     })
   });
@@ -102,6 +116,7 @@ router.get("/nop", function(req, res) {
   pendingOrg = {
     name: org
   }
+
   if (organizations.org.find(x => x.name === org) == undefined) {
     organizations.org.push(pendingOrg)
   }
@@ -113,7 +128,9 @@ router.get("/nop", function(req, res) {
     id: id
   }
 
-  organizations.org[index].nop = nop
+  if (organizations.org[index].nop == undefined) {
+    organizations.org[index].nop = nop
+  }
 
   if (organizations.org != undefined) {
     if (organizations.org[index].noc == undefined) {
@@ -123,7 +140,6 @@ router.get("/nop", function(req, res) {
       organizations.org[index].players.push(pendingUsr)
       organizations.org[index].noc += 1
     }
-
 
     console.log("Number of players: " + organizations.org[index].nop);
     console.log("Number of connected: " + organizations.org[index].noc);
@@ -195,10 +211,10 @@ router.get("/contratti*", function(req, res) {
     var data = JSON.parse(body);
     idList = data[0].id
 
-    initContratti(idList, token, function() {
+    initContratti(idList, org, token, function() {
       var optionsListContratti = {
         method: 'GET',
-        url: "https://api.trello.com/1/lists/" + idListContrattiScatola + "/cards",
+        url: "https://api.trello.com/1/lists/" + organizations.org[index].idListContrattiScatola + "/cards",
         qs: {
           key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
           token: token
@@ -233,7 +249,7 @@ router.get("/contratti*", function(req, res) {
   });
 });
 
-function initContratti(idList, token, callback) {
+function initContratti(idList, org, token, callback) {
   //Get cards
   var options = {
     method: 'GET',
@@ -247,7 +263,8 @@ function initContratti(idList, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    moveContratti(idListContrattiScatola, data, idBoardScatola, token, function() {
+    var index = organizations.org.findIndex(x => x.name === org)
+    moveContratti(organizations.org[index].idListContrattiScatola, data, organizations.org[index].idBoardScatola, token, function() {
       callback()
     })
   });
@@ -278,7 +295,7 @@ function getCardIndex(len, callback) {
   callback(cardIndex)
 }
 
-function setPosition(board, index, token) {
+function setPosition(board, org, index, token) {
   var options = {
     method: 'GET',
     url: "https://api.trello.com/1/boards/" + board + "/lists?filter=open",
@@ -296,7 +313,7 @@ function setPosition(board, index, token) {
       if (data[i].name == "Posizione") {
         //Ho l'id della lista "posizione"
         archive(data[i].id, token)
-        move(data[i].id, idStartCard, token)
+        move(data[i].id, organizations.org[index].idStartCard, token)
       }
     }
   });
@@ -316,7 +333,8 @@ function move(idList, idCard, token) {
   });
 }
 
-function setIdStardCard(idBoardScatola, token, callback) {
+function setIdStartCard(idBoardScatola, org, token, callback) {
+
   var options = {
     method: 'GET',
     url: "https://api.trello.com/1/boards/" + idBoardScatola + "/lists?filter=open",
@@ -328,7 +346,8 @@ function setIdStardCard(idBoardScatola, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    idListContrattiScatola = data[1].id
+    var index = organizations.org.findIndex(x => x.name === org)
+    organizations.org[index].idListContrattiScatola = data[1].id
     //Get idStartCard
     var optionsPlancia = {
       method: 'GET',
@@ -341,7 +360,9 @@ function setIdStardCard(idBoardScatola, token, callback) {
     request(optionsPlancia, function(error, response, body) {
       if (error) throw new Error(error);
       var cardsPlancia = JSON.parse(body);
-      idStartCard = cardsPlancia[0].id
+      //organizations.org[index].idStartCard = cardsPlancia[0].id
+        var index = organizations.org.findIndex(x => x.name === org)
+      organizations.org[index].idStartCard = cardsPlancia[0].id
       callback()
     });
   });
