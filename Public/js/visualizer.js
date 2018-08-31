@@ -269,7 +269,7 @@ function movePlayer(n) {
         console.log("newIndex: " + oldPositionIndex);
         console.log(oldPositionIndex);
         $.ajax({
-          url: '/api/game/move?newPosition=' + oldPositionIndex + '&id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
+          url: '/api/game/move?newPosition=' + oldPositionIndex + '&organization=' + localStorage.getItem("organization") + '&token=' + localStorage.getItem("token"),
           success: function(res) {
             console.log(res.newPosition);
             archiveOldPosition(oldPosition, oldPositionName);

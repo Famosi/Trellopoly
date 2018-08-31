@@ -29,19 +29,33 @@ router.get("/organization*", function(req, res) {
     }
   };
 
+
+
   request(options, function(error, response, body) {
     var rsp = {}
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     var org = req.query.organization
     var token = req.query.token
+
+    if (organizations.org == undefined) {
+      organizations.org = []
+    }
+
+    var pendingOrg = {
+      name: org
+    }
+
+    if (organizations.org.find(x => x.name === org) == undefined) {
+      organizations.org.push(pendingOrg)
+    }
+
     if (checkOrg(data, req.query.organization)) {
       getBoards(req.query.organization, req.query.token, function(play) {
         if (play) {
           rsp.success = true;
           if (organizations.org != undefined) {
             var index = organizations.org.findIndex(x => x.name === org)
-            console.log(index);
             if (index != -1) {
               if (organizations.org[index].nop != undefined) {
                 rsp.isSetNop = true
@@ -108,12 +122,13 @@ router.get("/nop", function(req, res) {
   var nop = req.query.nop
   var id = req.query.token
 
+  app.set("organizations", organizations)
 
   if (organizations.org == undefined) {
     organizations.org = []
   }
 
-  pendingOrg = {
+  var pendingOrg = {
     name: org
   }
 
@@ -399,10 +414,10 @@ function archive(idList, token) {
 
 
 //Get logged user boards
-function getBoards(organization, token, callback) {
+function getBoards(org, token, callback) {
   var options = {
     method: 'GET',
-    url: 'https://api.trello.com/1/organization/' + organization + '/boards/',
+    url: 'https://api.trello.com/1/organization/' + org + '/boards/',
     qs: {
       key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
       token: token
@@ -412,7 +427,7 @@ function getBoards(organization, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var boards = JSON.parse(body);
-    checkBoards(boards, token, function(play) {
+    checkBoards(boards, org, token, function(play) {
       callback(play)
     })
   });
@@ -420,7 +435,7 @@ function getBoards(organization, token, callback) {
 
 var operations = 0
 //Check if Boards are ok
-function checkBoards(boards, token, callback) {
+function checkBoards(boards, org, token, callback) {
   operations = 0
   var len = boards.length
   for (var i = 0; i < boards.length; i++) {
@@ -433,7 +448,7 @@ function checkBoards(boards, token, callback) {
       }
     };
     if (boards[i].name == "Scatola") {
-      checkScatola(options, token, function(play) {
+      checkScatola(options, org, token, function(play) {
         done(play, len, callback)
       })
     } else {
@@ -454,7 +469,7 @@ function done(play, len, callback) {
 
 
 //Check if Board is ok
-function checkScatola(options, token, callback) {
+function checkScatola(options, org, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var lists = JSON.parse(body);
@@ -466,7 +481,8 @@ function checkScatola(options, token, callback) {
         }
       }
       if (play) {
-        listPlanciaId = lists[0].id
+        var index = organizations.org.findIndex(x => x.name === org)
+        organizations.org[index].listPlanciaId = lists[0].id
       }
       callback(play)
     } else {

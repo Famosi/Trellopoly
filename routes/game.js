@@ -10,8 +10,6 @@ var listPlanciaId //id lista plancia in Scatola
 var cardPlayerPosition //id card posizione attuale del giocatore
 
 
-
-
 router.get("/board*", function(req, res) {
   var rsp = {};
   var options = {
@@ -82,9 +80,12 @@ router.get("/position*", function(req, res) {
 
 router.get("/move*", function(req, res) {
   var rsp = {};
+  var org = req.query.organization
+  var organizations = app.get("organizations")
+  var index = organizations.org.findIndex(x => x.name === org)
   var options = {
     method: 'GET',
-    url: 'https://api.trello.com/1/lists/' +  listPlanciaId + '/cards/',
+    url: 'https://api.trello.com/1/lists/' +  organizations.org[index].listPlanciaId + '/cards/',
     qs: {
       key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
       token: req.query.token
@@ -100,7 +101,6 @@ router.get("/move*", function(req, res) {
 
     //Move player
     var newPositionName = data[newPositionIndex - 1].name
-    console.log("newPosition: " + newPositionName);
 
     var moveOptions = {
       method: 'POST',
