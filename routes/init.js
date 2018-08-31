@@ -40,41 +40,11 @@ router.get("/organization*", function(req, res) {
     if (checkOrg(data, req.query.organization)) {
       getBoards(req.query.organization, req.query.token, function(play) {
         if (play) {
-          if (organizations.org != undefined) {
-            if (organizations.org.noc == undefined) {
-              organizations.org.noc = 1
-            } else {
-              if (organizations.org.players.find(x => x.id === token) == undefined) {
-                organizations.org.noc += 1
-              }
-            }
-            console.log("Organization: " + organizations.org);
-            console.log("Number of players: " + organizations.org.nop);
-            console.log("Number of connected: " + organizations.org.noc);
-
-            if (organizations.org.noc == organizations.org.nop) {
-              rsp.success = true;
-              rsp.wait = false;
-              rsp.message = "Inizializzo la partita...";
-              sendBroadcast(rsp)
-              res.status(200).json(rsp)
-            } else if (organizations.org.noc < organizations.org.nop) {
-              rsp.message = "Attendo giocatori...";
-              rsp.success = true
-              rsp.wait = true;
-              sendBroadcast(rsp)
-            } else {
-              rsp.message = "La partita è gia iniziata";
-              rsp.success = false
-              res.status(200).json(rsp);
-            }
-          } else {
-            rsp.message = "Errore interno, torna alla Home e riprova.";
-            rsp.success = false
-            res.status(200).json(rsp);
-          }
+          rsp.success = true;
+          rsp.message = "Ok to play";
+          res.status(200).json(rsp);
         } else {
-          console.log("Non è possibile giocare con questo gruppo, controlla le bacheche!");
+
           rsp.success = false;
           rsp.message = "Non è possibile giocare con questo gruppo, controlla le bacheche!";
           res.status(200).json(rsp);
@@ -109,7 +79,6 @@ router.get("/initialize*", function(req, res) {
     var rsp = {}
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    console.log("========== init =======");
     idBoardScatola = data[0].idBoards[0]
     setIdStardCard(data[0].idBoards[0], req.query.token, function() {
       for (var i = 1; i < data[0].idBoards.length; i++) {
@@ -120,29 +89,97 @@ router.get("/initialize*", function(req, res) {
 });
 
 router.get("/nop", function(req, res) {
+  var rsp = {}
   var org = req.query.organization
   var nop = req.query.nop
   var id = req.query.token
+
+
   if (organizations.org == undefined) {
-    organizations.org = {}
+    organizations.org = []
   }
-  if (organizations.org.players == undefined) {
-    organizations.org.players = []
+
+  pendingOrg = {
+    name: org
+  }
+  if (organizations.org.find(x => x.name === org) == undefined) {
+    organizations.org.push(pendingOrg)
+  }
+  var index = organizations.org.findIndex(x => x.name === org)
+  if (organizations.org[index].players == undefined) {
+    organizations.org[index].players = []
   }
   var pendingUsr = {
     id: id
   }
-  if (organizations.org.players.find(x => x.id === id) == undefined) {
-    organizations.org.players.push(pendingUsr)
-  };
-  organizations.org.nop = nop
+
+  organizations.org[index].nop = nop
+
+  if (organizations.org != undefined) {
+    if (organizations.org[index].noc == undefined) {
+      organizations.org[index].noc = 0
+    }
+    if (organizations.org[index].players.find(x => x.id === id) == undefined) {
+      organizations.org[index].players.push(pendingUsr)
+      organizations.org[index].noc += 1
+    }
+
+
+    console.log("Number of players: " + organizations.org[index].nop);
+    console.log("Number of connected: " + organizations.org[index].noc);
+
+    if (organizations.org[index].noc == organizations.org[index].nop) {
+      rsp.success = true;
+      rsp.isStart = false;
+      rsp.message = "Inizializzo la partita...";
+      if (organizations.org[index].isStart == undefined) {
+        sendBroadcast(rsp)
+      } else {
+        rsp.isStart = organizations.org[index].isStart;
+      }
+      res.status(200).json(rsp)
+    } else if (organizations.org[index].noc < organizations.org[index].nop) {
+      rsp.message = "Attendo giocatori...";
+      rsp.success = true
+      rsp.wait = true;
+      sendBroadcast(rsp)
+    } else {
+      rsp.message = "La partita è gia iniziata";
+      rsp.success = false
+      res.status(200).json(rsp);
+    }
+  } else {
+    rsp.message = "Errore interno, torna alla Home e riprova.";
+    rsp.success = false
+    res.status(200).json(rsp);
+  }
+  console.log(organizations);
 });
+
+router.get("/start*", function (req, res) {
+  var rsp = {}
+  var org = req.query.organization
+  var index = organizations.org.findIndex(x => x.name === org)
+  if (organizations.org[index].isStart != undefined) {
+    rsp.isStart = organizations.org[index].isStart
+  } else {
+    rsp.isStart = false
+  }
+  rsp.success = true
+  res.status(200).json(rsp);
+})
 
 router.get("/contratti*", function(req, res) {
   var rsp = {}
   var idBoard = req.query.boardId
   var token = req.query.token
+  var org = req.query.organization
   var idList
+
+  var index = organizations.org.findIndex(x => x.name === org)
+  if (organizations.org[index].isStart == undefined) {
+    organizations.org[index].isStart = true
+  }
 
   var options = {
     method: 'GET',
@@ -366,7 +403,6 @@ function checkBoards(boards, token, callback) {
   operations = 0
   var len = boards.length
   for (var i = 0; i < boards.length; i++) {
-    console.log(boards[i].name);
     var options = {
       method: 'GET',
       url: 'https://api.trello.com/1/boards/' + boards[i].id + '/lists?filter=open',
@@ -377,12 +413,10 @@ function checkBoards(boards, token, callback) {
     };
     if (boards[i].name == "Scatola") {
       checkScatola(options, token, function(play) {
-        console.log("Scatola can play: " + play);
         done(play, len, callback)
       })
     } else {
       checkPlayer(options, token, function(play) {
-        console.log("Player can play: " + play);
         done(play, len, callback)
       })
     }
@@ -391,10 +425,7 @@ function checkBoards(boards, token, callback) {
 
 function done(play, len, callback) {
   operations++
-  console.log("len: " + len);
-  console.log("operations: " + operations);
   if (operations == len) {
-    console.log(play);
     callback(play)
   }
 }

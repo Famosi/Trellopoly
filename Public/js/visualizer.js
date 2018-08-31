@@ -49,32 +49,45 @@ $(document).ready(function() {
 
 function loadHome(is_log) {
   //loadHome
-  $("#searchBarContainer").hide();
+  $("#searchBarContainer").show();
   $(".message-container").hide()
-  $(".input-field").show()
+  $(".input-field").hide()
 }
 
 $(".navbar-brand").on("click", function () {
   window.history.pushState({}, '', "/");
-  loadHome()
+  location.reload()
 });
 
 $('#searchBarContainer > input').on('keypress', function(e) {
   if (e.keyCode == 13) {
     localStorage.setItem("organization", $(this).val());
     window.history.pushState({}, '', "organization=" + localStorage.getItem("organization"));
-    loadOrganization(localStorage.getItem("is_log"))
+    //loadOrganization(localStorage.getItem("is_log"))
+    location.reload()
   }
 });
 
 $("#numberOP").on("change", function(select) {
   var nop = select.currentTarget.value
   $(".input-field").hide()
-  $("#searchBarContainer").show()
+  $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/init/nop?nop=' + nop + "&organization=" + localStorage.getItem("organization"),
+    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
-      console.log("ok nop");
+      if (res.success) {
+        if (res.isStart) {
+          moveBar()
+          $("#error").html("<p>Per ora devi scegliere la stessa pedina di prima</p>");
+          getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
+        } else {
+          initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
+        }
+      } else {
+        console.log(res.message);
+        $("#players").html("");
+        $("#error").html("<p>" + res.message + "</p>");
+      }
     },
     error: function(err) {
       console.log("Error: " + err);
@@ -83,11 +96,9 @@ $("#numberOP").on("change", function(select) {
 })
 
 function loadOrganization(is_log) {
-  $("#searchBarContainer").hide();
-  $(".message-container").hide();
-  $(".input-field").hide();
   $("#error").html("");
   if (is_log == "true") {
+    $("#searchBarContainer").hide()
     $('html').animate({
         scrollTop: $("#searchBarContainer").offset().top
       },
@@ -99,11 +110,12 @@ function loadOrganization(is_log) {
       success: function(res) {
         if (res.success) {
           $("#error").html("");
-          initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
+          $(".input-field").show();
+          //initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
           //getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
         } else {
+          console.log(res.message);
           $("#players").html("");
-          $("#error").show();
           $("#error").html("<p>" + res.message + "</p>");
         }
       },
@@ -112,13 +124,14 @@ function loadOrganization(is_log) {
       }
     });
   } else {
-    $("#error").append("<p>Effettua il login per continuare</p>");
+    $("#error").html("<p>Effettua il login per continuare</p>");
   }
 }
 
 function getBoards(organization, token) {
   $("#searchBarContainer").hide()
   $("#error").html("")
+  $(".players-container").html("")
   $.ajax({
     url: '/api/game/boards?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
@@ -189,10 +202,26 @@ function loadPlayer(id) {
   localStorage.setItem("playerBoardId", id);
   $(".players").html("");
   $("#error").html("");
-  giveContratti(id, function() {
-    $("#progressmsg").hide()
-    $(".Trello-cards").show()
-  })
+  $.ajax({
+    url: '/api/init/start?organization=' + localStorage.getItem("organization"),
+    success: function(res) {
+      if (res.success) {
+        console.log(res.isStart);
+        if (!res.isStart) {
+          giveContratti(id, function() {
+            $("#progressmsg").hide()
+            $(".Trello-cards").show()
+          })
+        } else {
+          $("#progressmsg").hide()
+          $(".Trello-cards").show()
+        }
+      }
+    },
+    error: function(err) {
+      console.log("Error getPosition: " + err);
+    }
+  });
 }
 
 function giveContratti(id, callback) {
@@ -200,7 +229,7 @@ function giveContratti(id, callback) {
   $("#progressmsg").text("Distribuendo i contratti..")
   $("#progressmsg").show()
   $.ajax({
-    url: '/api/init/contratti?boardId=' + id + '&token=' + localStorage.getItem("token"),
+    url: '/api/init/contratti?boardId=' + id + '&token=' + localStorage.getItem("token") + "&organization=" + localStorage.getItem("organization"),
     success: function(res) {
       if (res.success) {
         callback();
