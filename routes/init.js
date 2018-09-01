@@ -1,22 +1,17 @@
 var express = require('express');
 var request = require('request');
-
 const EventEmitter = require('events');
 
 class MyEmitter extends EventEmitter {}
-
 const myEmitter = new MyEmitter();
 
 // increase the limit
 myEmitter.setMaxListeners(15);
 
-var cardIndex
-var idBoardScatola
-
-var nop
-var organizations = {}
-
 var router = express.Router();
+
+var cardIndex
+var organizations = {}
 
 //Get user organizations
 router.get("/organization*", function(req, res) {
