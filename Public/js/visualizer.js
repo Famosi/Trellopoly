@@ -77,7 +77,7 @@ $("#numberOP").on("change", function(select) {
   $(".input-field").hide()
   $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/init/nop?nop=' + nop + "&organization=" + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
+    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
         console.log(res.isStart);
@@ -110,6 +110,7 @@ function loadOrganization(is_log) {
       'slow');
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     $(".message-container").show()
+    console.log(localStorage.getItem("organization"));
     $.ajax({
       url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
       success: function(res) {
@@ -152,13 +153,22 @@ function getBoards(organization, token) {
         var index = 1;
         for (var i = 0; i < res.data.length; i++) {
           if (res.data[i].name != "Scatola") {
+            /*
             var imgsrc
             if (res.data[i].name == "Fiasco") {
               imgsrc = "https://c1.staticflickr.com/8/7293/8830540164_63f3fd8bb3_b.jpg"
             } else if (res.data[i].name == "Fungo") {
               imgsrc = "https://www.corriere.it/methode_image/socialshare/2017/01/11/882224ac-d819-11e6-9dfa-46bea8378d9f.jpg"
             }
-            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
+            */
+            var imgsrc
+            if (res.data[i].prefs.backgroundImage != null) {
+              imgsrc = res.data[i].prefs.backgroundImage
+            } else {
+              imgsrc = "https://i.pinimg.com/originals/3b/4b/b9/3b4bb9846a1f2f5adc87b849e9f3dbea.jpg"
+            }
+
+            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top-board\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);

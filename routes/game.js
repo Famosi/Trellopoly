@@ -10,7 +10,7 @@ var listPlanciaId //id lista plancia in Scatola
 var cardPlayerPosition //id card posizione attuale del giocatore
 
 
-router.get("/board*", function(req, res) {
+router.get("/boards*", function(req, res) {
   var rsp = {};
   var options = {
     method: 'GET',
