@@ -21,6 +21,10 @@ ws.onmessage = function(msg) {
   }
 }
 
+function fun() {
+  alert("bella")
+}
+
 $(document).ready(function() {
   /* Detect ios 11_0_x affected
    * NEED TO BE UPDATED if new versions are affected */
@@ -29,9 +33,12 @@ $(document).ready(function() {
   /* iOS 11 bug caret position */
   if (iOS && iOS11)
 
-    $("body").addClass("iosBugFixCaret");
+  $("body").addClass("iosBugFixCaret");
 
   $('.parallax').parallax();
+  $('.fixed-action-btn').floatingActionButton({
+    hoverEnabled: false
+  });
 
   var is_log = localStorage.getItem("is_log");
 
@@ -52,6 +59,7 @@ function loadHome(is_log) {
   $("#searchBarContainer").show();
   $(".message-container").hide()
   $(".input-field").hide()
+  $(".fixed-action-btn").hide()
 }
 
 $(".navbar-brand").on("click", function () {
@@ -98,6 +106,7 @@ $("#numberOP").on("change", function(select) {
 
 function loadOrganization(is_log) {
   $("#error").html("");
+  $(".fixed-action-btn").hide()
   if (is_log == "true") {
     $("#searchBarContainer").hide()
     $('html').animate({
@@ -151,7 +160,7 @@ function getBoards(organization, token) {
             } else if (res.data[i].name == "Fungo") {
               imgsrc = "https://www.corriere.it/methode_image/socialshare/2017/01/11/882224ac-d819-11e6-9dfa-46bea8378d9f.jpg"
             }
-            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"btn btn-primary\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
+            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);
@@ -215,10 +224,12 @@ function loadPlayer(id, name) {
           giveContratti(id, function() {
             $("#progressmsg").hide()
             $(".Trello-cards").show()
+            $(".fixed-action-btn").show()
           })
         } else {
           $("#progressmsg").hide()
           $(".Trello-cards").show()
+          $(".fixed-action-btn").show()
         }
       }
     },
@@ -247,7 +258,9 @@ function giveContratti(id, callback) {
 
 $("#launchDice").on("click", function(e) {
   e.preventDefault();
-  var result = Math.floor(Math.random() * 12) + 1;
+  var min = Math.ceil(2);
+  var max = Math.floor(12);
+  var result = Math.floor(Math.random() * (max - min + 1)) + min
   localStorage.setItem("dadi", result);
   $("#resultDice").text(result);
   movePlayer(result);

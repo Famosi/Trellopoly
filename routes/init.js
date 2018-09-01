@@ -187,7 +187,6 @@ router.get("/nop", function(req, res) {
     rsp.success = false
     res.status(200).json(rsp);
   }
-  console.log(organizations);
 });
 
 router.get("/start*", function (req, res) {
@@ -255,10 +254,14 @@ router.get("/contratti*", function(req, res) {
             };
 
             request(optionsMove, function(error, response, body) {
-              if (error) throw new Error(error);
+              if (error) {
+                rsp.success = false;
+                rsp.message = "Trello Error: " + error
+                res.status(200).json(rsp);
+              }
+              var data = JSON.parse(body)
             });
           })
-
         }
         rsp.success = true;
         res.status(200).json(rsp);
@@ -326,7 +329,6 @@ function setPosition(board, org, index, token) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
-    console.log(data);
     //All players in Start position
     for (var i = 0; i < data.length; i++) {
       if (data[i].name == "Posizione") {
