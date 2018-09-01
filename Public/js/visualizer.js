@@ -7,14 +7,11 @@ var ws = new WebSocket(host);
 
 // event emmited when connected
 ws.onopen = function() {
-  console.log('websocket is connected ...')
-  // sending a send event to websocket server
-  ws.send('connected')
+  console.log('websocket is connected...')
 }
 // event emmited when receiving message
 ws.onmessage = function(msg) {
   $("#error").html(msg.data);
-  console.log(msg.data);
   if (msg.data == "Inizializzo la partita...") {
     moveBar()
     getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
@@ -70,7 +67,6 @@ $('#searchBarContainer > input').on('keypress', function(e) {
     window.history.pushState({}, '', "/");
     window.history.pushState({}, '', "organization=" + localStorage.getItem("organization"));
     loadOrganization(localStorage.getItem("is_log"))
-    //location.reload()
   }
 });
 
@@ -82,7 +78,6 @@ $("#numberOP").on("change", function(select) {
     url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
     success: function(res) {
       if (res.success) {
-        console.log(res.isStart);
         if (res.isStart) {
           moveBar()
           getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
@@ -90,7 +85,6 @@ $("#numberOP").on("change", function(select) {
           initGame(localStorage.getItem("organization"), localStorage.getItem("token"))
         }
       } else {
-        console.log(res.message);
         $("#players").html("");
         $("#error").html("<p>" + res.message + "</p>");
       }
@@ -111,9 +105,8 @@ function loadOrganization(is_log) {
       },
       'slow');
     window.dispatchEvent(new HashChangeEvent("hashchange"));
-    $(".message-container").show()
 
-    console.log(localStorage.getItem("organization"));
+    $(".message-container").show()
 
     $.ajax({
       url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
@@ -121,6 +114,9 @@ function loadOrganization(is_log) {
         if (res.success) {
           $("#error").html("");
           $(".input-field").show();
+          for (var i = 1; i < res.boardLen; i++) {
+            $("#numberOP").append("<option value=\"" + (i+1) +"\">" + (i+1) + "</option>");
+          }
           if (res.isSetNop) {
             eventFire(document.getElementById('numberOP'), 'change');
           }
@@ -164,7 +160,7 @@ function getBoards(organization, token) {
             } else {
               imgsrc = "https://i.pinimg.com/originals/3b/4b/b9/3b4bb9846a1f2f5adc87b849e9f3dbea.jpg"
             }
-            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top-board\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
+            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top-board\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\'" + res.data[i].id + '\',\'' + res.data[i].name + "\')>" + res.data[i].name + "</a></div></div></div>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);
@@ -216,15 +212,15 @@ function moveBar() {
 
 
 function loadPlayer(id, name) {
-  console.log(id);
   localStorage.setItem("playerBoardId", id);
-  $(".players").html("<h6>" + id + "<h6>");
   $("#error").html("");
+  $(".players-container").hide()
+  $(".players > .message").text("")
+  $("#namePlayer").text(name)
   $.ajax({
     url: '/api/init/start?organization=' + localStorage.getItem("organization"),
     success: function(res) {
       if (res.success) {
-        console.log(res.isStart);
         if (!res.isStart) {
           giveContratti(id, function() {
             $("#progressmsg").hide()
@@ -253,6 +249,8 @@ function giveContratti(id, callback) {
     success: function(res) {
       if (res.success) {
         callback();
+      } else {
+        $("#error").html("<p>" + res.message + "</p>")
       }
     },
     error: function(err) {
@@ -276,7 +274,6 @@ $(".fixed-action-btn").on("click", function (e) {
   $.ajax({
     url: '/api/init/gameover?organization=' + localStorage.getItem("organization"),
     success: function(res) {
-      console.log(res.message);
       window.history.pushState({}, '', "/");
       location.reload()
     },
@@ -293,18 +290,13 @@ function movePlayer(n) {
       if (res.success) {
         var oldPosition = res.cardId
         var oldPositionName = res.position
-        console.log("Actual position: " + oldPositionName);
-        console.log("oldIndex: " + oldPositionIndex);
         oldPositionIndex += n
         if (oldPositionIndex > 40) {
           oldPositionIndex = oldPositionIndex - 40
         }
-        console.log("newIndex: " + oldPositionIndex);
-        console.log(oldPositionIndex);
         $.ajax({
           url: '/api/game/move?newPosition=' + oldPositionIndex + '&organization=' + localStorage.getItem("organization") + '&token=' + localStorage.getItem("token"),
           success: function(res) {
-            console.log(res.newPosition);
             archiveOldPosition(oldPosition, oldPositionName);
           },
           error: function(err) {

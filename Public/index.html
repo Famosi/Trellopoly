@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>PlayTrello</title>
+  <title>Trellopoly</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="HandheldFriendly" content="true" />
@@ -50,18 +50,16 @@
 
   <!-- PARALLAX -->
   <div class="parallax-container">
-    <div class="parallax"><img src="http://data.websitebox.com/data/users/0020/285/uploads/monopoly-board-game.jpg"></div>
+    <div class="parallax">
+      <img id="parallax-img" src="http://data.websitebox.com/data/users/0020/285/uploads/monopoly-board-game.jpg">
+    </div>
   </div>
   <!-- PARALLAX -->
   <div class="container-fluid">
     <div class="Homeview">
-
       <div class="input-field col s12">
         <select id="numberOP">
           <option value="" disabled selected>Scegli il numero di giocatori</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
         </select>
       </div>
 
@@ -83,8 +81,10 @@
   </div>
   <div class="container-fluid">
     <div class="Trello-cards">
+      <h5 class="waves-effect waves-light btn" id="namePlayer"></h5>
+      <br/>
       <div class="card col-xs-12 col-sm-8 col-md-6 col-lg-3" style="width: 18rem;">
-        <div class="cardimg">
+        <div class="cardimg" id="card-diceimg">
           <img class="card-img-top-dice" id="diceimg" src="https://qed.ai/wp-content/uploads/2014/09/dice.png" alt="Card image dadi">
         </div>
         <h5 id="resultDice" style="text-align: center;"></h5>
@@ -93,20 +93,17 @@
         </div>
       </div>
     </div>
+    <div class="fixed-action-btn">
+      <a class="waves-effect waves-light btn">Fine partita</a>
+    </div>
+    </div>
+    <div class="white-space"></div>
   </div>
-  <div class="fixed-action-btn">
-    <a class="waves-effect waves-light btn">Fine partita</a>
-  </div>
-  </div>
-  <div class="white-space"></div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://trello.com/1/client.js?key=4dd8f72d0f8b9dfb50ac4131b768ff3d"></script>
   <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
-  <script data-main="/js/facilities/require-config" src="/js/facilities/require.js"></script>
   <script type="text/javascript" src="/js/visualizer.js"></script>
-  <script type="text/javascript" src="/js/input.js"></script>
   <script type="text/javascript" src="/js/login.js"></script>
-
 </html>

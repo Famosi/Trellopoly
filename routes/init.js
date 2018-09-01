@@ -29,68 +29,73 @@ router.get("/organization*", function(req, res) {
     }
   };
 
-
-
   request(options, function(error, response, body) {
     var rsp = {}
-    if (error) throw new Error(error);
-    var data = JSON.parse(body);
-    var org = req.query.organization
-    var token = req.query.token
-
-    if (organizations.org == undefined) {
-      organizations.org = []
-    }
-
-    var pendingOrg = {
-      name: org
-    }
-
-    if (organizations.org.find(x => x.name === org) == undefined) {
-      organizations.org.push(pendingOrg)
-    }
-    var index = organizations.org.findIndex(x => x.name === org)
-
-    if (organizations.org[index].players == undefined) {
-      organizations.org[index].players = []
-    }
-    var pendingUsr = {
-      id: token
-    }
-    if (organizations.org[index].noc == undefined) {
-      organizations.org[index].noc = 0
-    }
-    if (organizations.org[index].players.find(x => x.id === token) == undefined) {
-      organizations.org[index].players.push(pendingUsr)
-      organizations.org[index].noc += 1
-    }
-
-    if (checkOrg(data, req.query.organization)) {
-      getBoards(req.query.organization, req.query.token, function(play) {
-        if (play) {
-          rsp.success = true;
-          if (organizations.org != undefined) {
-            var index = organizations.org.findIndex(x => x.name === org)
-            if (index != -1) {
-              if (organizations.org[index].nop != undefined && organizations.org[index].nop != 0) {
-                rsp.isSetNop = true
-              }
-            }
-          } else {
-            rsp.isSetNop = false
-          }
-          rsp.message = "Ok to play";
-          res.status(200).json(rsp);
-        } else {
-          rsp.success = false;
-          rsp.message = "Non è possibile giocare con questo gruppo, controlla le bacheche!";
-          res.status(200).json(rsp);
-        }
-      })
+    if (error) {
+      console.log("Trello request error: " + error);
+      rsp.success = false
+      rsp.message = "Si è riscontrato un problema con Trello. \n Si prega di riprovare."
+      res.status(200).send(rsp)
     } else {
-      rsp.success = false;
-      rsp.message = "Sembra che tu non faccia parte di questo gruppo!";
-      res.status(200).json(rsp);
+      var data = JSON.parse(body);
+      var org = req.query.organization
+      var token = req.query.token
+
+      if (organizations.org == undefined) {
+        organizations.org = []
+      }
+
+      var pendingOrg = {
+        name: org
+      }
+
+      if (organizations.org.find(x => x.name === org) == undefined) {
+        organizations.org.push(pendingOrg)
+      }
+      var index = organizations.org.findIndex(x => x.name === org)
+
+      if (organizations.org[index].players == undefined) {
+        organizations.org[index].players = []
+      }
+      var pendingUsr = {
+        id: token
+      }
+      if (organizations.org[index].noc == undefined) {
+        organizations.org[index].noc = 0
+      }
+      if (organizations.org[index].players.find(x => x.id === token) == undefined) {
+        organizations.org[index].players.push(pendingUsr)
+        organizations.org[index].noc += 1
+      }
+
+      if (checkOrg(data, req.query.organization)) {
+        getBoards(req.query.organization, req.query.token, function(play) {
+          if (play) {
+            var index = organizations.org.findIndex(x => x.name === org)
+            rsp.success = true;
+            if (organizations.org != undefined) {
+              if (index != -1) {
+                if (organizations.org[index].nop != undefined && organizations.org[index].nop != 0) {
+                  rsp.isSetNop = true
+                }
+              }
+            } else {
+              rsp.isSetNop = false
+            }
+            rsp.message = "Ok to play";
+            rsp.boardLen = organizations.org[index].boardLen - 1
+            res.status(200).json(rsp);
+          } else {
+            rsp.success = false;
+            rsp.message = "Non è possibile giocare con questo gruppo, controlla le bacheche!";
+            res.status(200).json(rsp);
+          }
+        })
+      } else {
+        rsp.success = false;
+        rsp.message = "Sembra che tu non faccia parte di questo gruppo!";
+        res.status(200).json(rsp);
+      }
     }
   });
 })
@@ -259,23 +264,29 @@ router.get("/contratti*", function(req, res) {
         var cardIndex
         for (var i = 0; i < 3; i++) {
           getCardIndex(data.length - i, function(cardIndex) {
-            var optionsMove = {
-              method: 'PUT',
-              url: "https://api.trello.com/1/cards/" + data[cardIndex].id + "?idList=" + idList + "&idBoard=" + idBoard,
-              qs: {
-                key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
-                token: token
-              }
-            };
+            if(data[cardIndex] != undefined){
+              var optionsMove = {
+                method: 'PUT',
+                url: "https://api.trello.com/1/cards/" + data[cardIndex].id + "?idList=" + idList + "&idBoard=" + idBoard,
+                qs: {
+                  key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+                  token: token
+                }
+              };
 
-            request(optionsMove, function(error, response, body) {
-              if (error) {
-                rsp.success = false;
-                rsp.message = "Trello Error: " + error
-                res.status(200).json(rsp);
-              }
-              var data = JSON.parse(body)
-            });
+              request(optionsMove, function(error, response, body) {
+                if (error) {
+                  rsp.success = false;
+                  rsp.message = "Trello Error: " + error
+                  res.status(200).json(rsp);
+                }
+                var data = JSON.parse(body)
+              });
+            } else {
+              rsp.success = false;
+              rsp.message = "Si è riscontrato un problema con Trello. \n Si prega di riprovare."
+              res.status(200).json(rsp);
+            }
           })
         }
         rsp.success = true;
@@ -464,6 +475,8 @@ function getBoards(org, token, callback) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var boards = JSON.parse(body);
+    var index = organizations.org.findIndex(x => x.name === org)
+    organizations.org[index].boardLen = boards.length
     checkBoards(boards, org, token, function(play) {
       callback(play)
     })
@@ -496,10 +509,15 @@ function checkBoards(boards, org, token, callback) {
   }
 }
 
+var playLocal = true
 function done(play, len, callback) {
+  if (play == false) {
+    playLocal = false;
+  }
   operations++
   if (operations == len) {
-    callback(play)
+    callback(playLocal)
+    playLocal = true;
   }
 }
 
@@ -541,6 +559,7 @@ function checkPlayer(options, token, callback) {
           play = false
         }
       }
+      console.log("Can play: " + play);
       callback(play)
     } else {
       callback(false)
