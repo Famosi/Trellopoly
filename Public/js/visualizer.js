@@ -46,6 +46,7 @@ $(document).ready(function() {
   if (document.location.pathname == "/") {
     loadHome(is_log)
   } else if (document.location.pathname.startsWith("/organization")) {
+    localStorage.setItem("organization", document.location.pathname.split("=")[1].split("/")[0])
     loadOrganization(is_log)
   }
 });
@@ -66,6 +67,7 @@ $(".navbar-brand").on("click", function () {
 $('#searchBarContainer > input').on('keypress', function(e) {
   if (e.keyCode == 13) {
     localStorage.setItem("organization", $(this).val());
+    window.history.pushState({}, '', "/");
     window.history.pushState({}, '', "organization=" + localStorage.getItem("organization"));
     loadOrganization(localStorage.getItem("is_log"))
     //location.reload()
@@ -110,7 +112,9 @@ function loadOrganization(is_log) {
       'slow');
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     $(".message-container").show()
+
     console.log(localStorage.getItem("organization"));
+
     $.ajax({
       url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
       success: function(res) {
@@ -124,6 +128,7 @@ function loadOrganization(is_log) {
           //getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
         } else {
           $("#searchBarContainer").show()
+          $(".input-field").hide();
           $("#players").html("");
           $("#error").html("<p>" + res.message + "</p>");
         }
@@ -159,7 +164,6 @@ function getBoards(organization, token) {
             } else {
               imgsrc = "https://i.pinimg.com/originals/3b/4b/b9/3b4bb9846a1f2f5adc87b849e9f3dbea.jpg"
             }
-
             $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top-board\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\"" + res.data[i].id + "\")>" + res.data[i].name + "</a></div></div></div>")
             index++
           } else {
