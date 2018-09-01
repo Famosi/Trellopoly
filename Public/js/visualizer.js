@@ -153,14 +153,6 @@ function getBoards(organization, token) {
         var index = 1;
         for (var i = 0; i < res.data.length; i++) {
           if (res.data[i].name != "Scatola") {
-            /*
-            var imgsrc
-            if (res.data[i].name == "Fiasco") {
-              imgsrc = "https://c1.staticflickr.com/8/7293/8830540164_63f3fd8bb3_b.jpg"
-            } else if (res.data[i].name == "Fungo") {
-              imgsrc = "https://www.corriere.it/methode_image/socialshare/2017/01/11/882224ac-d819-11e6-9dfa-46bea8378d9f.jpg"
-            }
-            */
             var imgsrc
             if (res.data[i].prefs.backgroundImage != null) {
               imgsrc = res.data[i].prefs.backgroundImage
