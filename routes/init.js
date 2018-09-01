@@ -49,6 +49,21 @@ router.get("/organization*", function(req, res) {
     if (organizations.org.find(x => x.name === org) == undefined) {
       organizations.org.push(pendingOrg)
     }
+    var index = organizations.org.findIndex(x => x.name === org)
+
+    if (organizations.org[index].players == undefined) {
+      organizations.org[index].players = []
+    }
+    var pendingUsr = {
+      id: token
+    }
+    if (organizations.org[index].noc == undefined) {
+      organizations.org[index].noc = 0
+    }
+    if (organizations.org[index].players.find(x => x.id === token) == undefined) {
+      organizations.org[index].players.push(pendingUsr)
+      organizations.org[index].noc += 1
+    }
 
     if (checkOrg(data, req.query.organization)) {
       getBoards(req.query.organization, req.query.token, function(play) {
@@ -57,7 +72,7 @@ router.get("/organization*", function(req, res) {
           if (organizations.org != undefined) {
             var index = organizations.org.findIndex(x => x.name === org)
             if (index != -1) {
-              if (organizations.org[index].nop != undefined) {
+              if (organizations.org[index].nop != undefined && organizations.org[index].nop != 0) {
                 rsp.isSetNop = true
               }
             }
@@ -146,7 +161,7 @@ router.get("/nop", function(req, res) {
     id: id
   }
 
-  if (organizations.org[index].nop == undefined) {
+  if (organizations.org[index].nop == undefined || organizations.org[index].nop == 0 ) {
     organizations.org[index].nop = nop
   }
 
@@ -166,7 +181,7 @@ router.get("/nop", function(req, res) {
       rsp.success = true;
       rsp.isStart = false;
       rsp.message = "Inizializzo la partita...";
-      if (organizations.org[index].isStart == undefined) {
+      if (organizations.org[index].isStart == undefined || organizations.org[index].isStart == false) {
         sendBroadcast(rsp)
       } else {
         rsp.isStart = organizations.org[index].isStart;
@@ -269,6 +284,21 @@ router.get("/contratti*", function(req, res) {
     });
   });
 });
+
+router.get("/gameover*", function (req, res) {
+  var rsp = {}
+  var org = req.query.organization
+  var index = organizations.org.findIndex(x => x.name === org)
+  console.log(index);
+  organizations.org[index].players = []
+  organizations.org[index].nop = 0
+  organizations.org[index].noc = 0
+  organizations.org[index].isStart = false
+
+  rsp.success = true;
+  rsp.message = "Partita conclusa!"
+  res.status(200).json(rsp);
+})
 
 function initContratti(idList, org, token, callback) {
   //Get cards
