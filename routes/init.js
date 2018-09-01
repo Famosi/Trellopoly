@@ -102,15 +102,18 @@ router.get("/initialize*", function(req, res) {
     var rsp = {}
     if (error) throw new Error(error);
     var data = JSON.parse(body);
+
     var index = organizations.org.findIndex(x => x.name === org)
+    var indexOrg
     for (var i = 0; i < data.length; i++) {
       if (data[i].name == org) {
+        indexOrg = i
         organizations.org[index].idBoardScatola = data[i].idBoards[0]
       }
     }
     setIdStartCard(organizations.org[index].idBoardScatola, org, req.query.token, function() {
-      for (var i = 1; i < data[0].idBoards.length; i++) {
-        setPosition(organizations.org[index].idBoardScatola, org, i, req.query.token)
+      for (var i = 1; i < data[indexOrg].idBoards.length; i++) {
+        setPosition(data[indexOrg].idBoards[i], org, i, req.query.token)
       }
     })
   });
@@ -323,10 +326,12 @@ function setPosition(board, org, index, token) {
   request(options, function(error, response, body) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
+    console.log(data);
     //All players in Start position
     for (var i = 0; i < data.length; i++) {
       if (data[i].name == "Posizione") {
         //Ho l'id della lista "posizione"
+        var index = organizations.org.findIndex(x => x.name === org)
         archive(data[i].id, token)
         move(data[i].id, organizations.org[index].idStartCard, token)
       }
