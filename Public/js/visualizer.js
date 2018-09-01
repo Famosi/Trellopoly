@@ -75,7 +75,7 @@ $("#numberOP").on("change", function(select) {
   $(".input-field").hide()
   $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
+    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("id"),
     success: function(res) {
       if (res.success) {
         if (res.isStart) {
@@ -109,7 +109,7 @@ function loadOrganization(is_log) {
     $(".message-container").show()
 
     $.ajax({
-      url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token"),
+      url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token") + "&id=" + localStorage.getItem("id"),
       success: function(res) {
         if (res.success) {
           $("#error").html("");
@@ -160,7 +160,7 @@ function getBoards(organization, token) {
             } else {
               imgsrc = "https://i.pinimg.com/originals/3b/4b/b9/3b4bb9846a1f2f5adc87b849e9f3dbea.jpg"
             }
-            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top-board\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\'" + res.data[i].id + '\',\'' + res.data[i].name + "\')>" + res.data[i].name + "</a></div></div></div>")
+            $(".players-container").append("<div class=\"card col-xs-12 col-sm-8 col-md-6 col-lg-3\" style=\"width: 18rem;\"> <img class=\"card-img-top-board\" src=\"" + imgsrc + "\" alt=\"Card image cap\"> <div class=\"card-body\"><div class=\"anchor-container\" style=\"text-align: center;\"><a href=\"javascript:void(0)\" class=\"waves-effect waves-light btn\" onClick=loadPlayer(\'" + res.data[i].id + '\',\'' + res.data[i].name + '\',\'' + imgsrc + "\')>" + res.data[i].name + "</a></div></div></div>")
             index++
           } else {
             localStorage.setItem("idScatola", res.data[i].id);
@@ -211,12 +211,13 @@ function moveBar() {
 }
 
 
-function loadPlayer(id, name) {
+function loadPlayer(id, name, imgsrc) {
   localStorage.setItem("playerBoardId", id);
   $("#error").html("");
   $(".players-container").hide()
   $(".players > .message").text("")
   $("#namePlayer").text(name)
+  document.getElementById('namePlayer').style.backgroundImage="url(" + imgsrc + ")";
   $.ajax({
     url: '/api/init/start?organization=' + localStorage.getItem("organization"),
     success: function(res) {

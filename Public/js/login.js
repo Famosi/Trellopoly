@@ -2,6 +2,7 @@ var onAuthorize = function() {
   Trello.members.get("me", function(member) {
     localStorage.setItem("username", member.fullName)
     localStorage.setItem("token", Trello.token())
+    localStorage.setItem("idPlayer", member.id)
     $('#login-userButton').html("<span class=\"glyphicon glyphicon-user\"></span> " + localStorage.getItem("username"))
     $("#login-userButton").attr("onclick", "logout()");
   });

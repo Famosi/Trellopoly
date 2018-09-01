@@ -39,7 +39,7 @@ router.get("/organization*", function(req, res) {
     } else {
       var data = JSON.parse(body);
       var org = req.query.organization
-      var token = req.query.token
+      var id = req.query.id
 
       if (organizations.org == undefined) {
         organizations.org = []
@@ -58,12 +58,12 @@ router.get("/organization*", function(req, res) {
         organizations.org[index].players = []
       }
       var pendingUsr = {
-        id: token
+        id: id
       }
       if (organizations.org[index].noc == undefined) {
         organizations.org[index].noc = 0
       }
-      if (organizations.org[index].players.find(x => x.id === token) == undefined) {
+      if (organizations.org[index].players.find(x => x.id === id) == undefined) {
         organizations.org[index].players.push(pendingUsr)
         organizations.org[index].noc += 1
       }
@@ -143,7 +143,7 @@ router.get("/nop", function(req, res) {
   var rsp = {}
   var org = req.query.organization
   var nop = req.query.nop
-  var id = req.query.token
+  var id = req.query.id
 
   app.set("organizations", organizations)
 
