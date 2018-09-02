@@ -563,7 +563,6 @@ function checkPlayer(options, token, callback) {
           play = false
         }
       }
-      console.log("Can play: " + play);
       callback(play)
     } else {
       callback(false)
