@@ -100,12 +100,10 @@ router.get("/move*", function(req, res) {
   var indexTurn = (indexId + 1) % organizations.org[indexName].players.length
 
   var idTurn = organizations.org[indexName].players[indexTurn].id
-  console.log(indexTurn);
   var brd = {
     'resultDice' : resultDice,
     'id' : idTurn.toString()
   }
-  console.log(JSON.stringify(brd));
   sendBroadcast(JSON.stringify(brd))
 
   var options = {

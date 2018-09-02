@@ -177,9 +177,6 @@ router.get("/nop", function(req, res) {
       organizations.org[index].noc += 1
     }
 
-    console.log("Number of players: " + organizations.org[index].nop);
-    console.log("Number of connected: " + organizations.org[index].noc);
-
     if (organizations.org[index].noc == organizations.org[index].nop) {
       rsp.success = true;
       rsp.isStart = false;
