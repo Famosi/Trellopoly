@@ -38,8 +38,16 @@ router.get("/boards*", function(req, res) {
   });
 })
 
+function sendBroadcast(msg) {
+  var wss = app.get("wss")
+  wss.clients.forEach(function each(client) {
+    client.send(msg);
+  });
+}
+
 router.get("/position*", function(req, res) {
   ScatolaBoardId = req.query.id
+
   var options = {
     method: 'GET',
     url: 'https://api.trello.com/1/boards/' +  ScatolaBoardId + '/lists/',
@@ -81,11 +89,28 @@ router.get("/position*", function(req, res) {
 router.get("/move*", function(req, res) {
   var rsp = {};
   var org = req.query.organization
+  var id = req.query.id
+  var resultDice = req.query.resultDice
+
   var organizations = app.get("organizations")
-  var index = organizations.org.findIndex(x => x.name === org)
+
+
+  var indexName = organizations.org.findIndex(x => x.name === org)
+  var indexId = organizations.org[indexName].players.findIndex(x => x.id === id)
+  var indexTurn = (indexId + 1) % organizations.org[indexName].players.length
+
+  var idTurn = organizations.org[indexName].players[indexTurn].id
+  console.log(indexTurn);
+  var brd = {
+    'resultDice' : resultDice,
+    'id' : idTurn.toString()
+  }
+  console.log(JSON.stringify(brd));
+  sendBroadcast(JSON.stringify(brd))
+
   var options = {
     method: 'GET',
-    url: 'https://api.trello.com/1/lists/' +  organizations.org[index].listPlanciaId + '/cards/',
+    url: 'https://api.trello.com/1/lists/' +  organizations.org[indexName].listPlanciaId + '/cards/',
     qs: {
       key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
       token: req.query.token

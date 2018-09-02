@@ -11,10 +11,26 @@ ws.onopen = function() {
 }
 // event emmited when receiving message
 ws.onmessage = function(msg) {
-  $("#error").html(msg.data);
+
   if (msg.data == "Inizializzo la partita...") {
+    $("#error").html(msg.data);
     moveBar()
     getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
+  } else if (msg.data == "Attendo giocatori..."){
+    $("#error").html(msg.data);
+  } else {
+    var msgParse = JSON.parse(msg.data)
+    if (msgParse.resultDice != null) {
+      $("#resultDice").text(msgParse.resultDice)
+    }
+    if (localStorage.getItem("idPlayer") == msgParse.id) {
+      console.log("myTurn");
+      localStorage.setItem("myTurn", true)
+      $("#launchDice").show()
+    } else {
+      localStorage.setItem("myTurn", false)
+      $("#launchDice").hide()
+    }
   }
 }
 
@@ -75,7 +91,7 @@ $("#numberOP").on("change", function(select) {
   $(".input-field").hide()
   $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("id"),
+    url: '/api/init/nop?nop=' + nop + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("idPlayer"),
     success: function(res) {
       if (res.success) {
         if (res.isStart) {
@@ -109,7 +125,7 @@ function loadOrganization(is_log) {
     $(".message-container").show()
 
     $.ajax({
-      url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token") + "&id=" + localStorage.getItem("id"),
+      url: '/api/init/organization?organization=' + localStorage.getItem("organization") + "&token=" + localStorage.getItem("token") + "&id=" + localStorage.getItem("idPlayer"),
       success: function(res) {
         if (res.success) {
           $("#error").html("");
@@ -285,8 +301,9 @@ $(".fixed-action-btn").on("click", function (e) {
 })
 
 function movePlayer(n) {
+  console.log(localStorage.getItem("playerBoardId"));
   $.ajax({
-    url: '/api/game/position?id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token"),
+    url: '/api/game/position?id=' + localStorage.getItem("playerBoardId") + '&token=' + localStorage.getItem("token") + '&organization=' + localStorage.getItem("organization"),
     success: function(res) {
       if (res.success) {
         var oldPosition = res.cardId
@@ -296,7 +313,7 @@ function movePlayer(n) {
           oldPositionIndex = oldPositionIndex - 40
         }
         $.ajax({
-          url: '/api/game/move?newPosition=' + oldPositionIndex + '&organization=' + localStorage.getItem("organization") + '&token=' + localStorage.getItem("token"),
+          url: '/api/game/move?newPosition=' + oldPositionIndex + '&resultDice=' + n + '&organization=' + localStorage.getItem("organization") + '&token=' + localStorage.getItem("token") + '&id=' + localStorage.getItem("idPlayer"),
           success: function(res) {
             archiveOldPosition(oldPosition, oldPositionName);
           },

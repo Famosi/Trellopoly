@@ -98,7 +98,7 @@ router.get("/organization*", function(req, res) {
 function sendBroadcast(msg) {
   var wss = app.get("wss")
   wss.clients.forEach(function each(client) {
-    client.send(msg.message);
+    client.send(msg);
   });
 }
 
@@ -115,22 +115,25 @@ router.get("/initialize*", function(req, res) {
 
   request(options, function(error, response, body) {
     var rsp = {}
-    if (error) throw new Error(error);
-    var data = JSON.parse(body);
+    if (error) {
+      console.log(error);
+    } else {
+      var data = JSON.parse(body);
 
-    var index = organizations.org.findIndex(x => x.name === org)
-    var indexOrg
-    for (var i = 0; i < data.length; i++) {
-      if (data[i].name == org) {
-        indexOrg = i
-        organizations.org[index].idBoardScatola = data[i].idBoards[0]
+      var index = organizations.org.findIndex(x => x.name === org)
+      var indexOrg
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].name == org) {
+          indexOrg = i
+          organizations.org[index].idBoardScatola = data[i].idBoards[0]
+        }
       }
+      setIdStartCard(organizations.org[index].idBoardScatola, org, req.query.token, function() {
+        for (var i = 1; i < data[indexOrg].idBoards.length; i++) {
+          setPosition(data[indexOrg].idBoards[i], org, i, req.query.token)
+        }
+      })
     }
-    setIdStartCard(organizations.org[index].idBoardScatola, org, req.query.token, function() {
-      for (var i = 1; i < data[indexOrg].idBoards.length; i++) {
-        setPosition(data[indexOrg].idBoards[i], org, i, req.query.token)
-      }
-    })
   });
 });
 
@@ -182,7 +185,13 @@ router.get("/nop", function(req, res) {
       rsp.isStart = false;
       rsp.message = "Inizializzo la partita...";
       if (organizations.org[index].isStart == undefined || organizations.org[index].isStart == false) {
-        sendBroadcast(rsp)
+        sendBroadcast(rsp.message)
+        rsp.id = organizations.org[index].players[0].id
+        var brd = {
+          'resultDice' : null,
+          'id' : rsp.id
+        }
+        sendBroadcast(JSON.stringify(brd))
       } else {
         rsp.isStart = organizations.org[index].isStart;
       }
@@ -191,7 +200,7 @@ router.get("/nop", function(req, res) {
       rsp.message = "Attendo giocatori...";
       rsp.success = true
       rsp.wait = true;
-      sendBroadcast(rsp)
+      sendBroadcast(rsp.message)
     } else {
       rsp.message = "La partita è gia iniziata";
       rsp.success = false
@@ -295,7 +304,7 @@ router.get("/gameover*", function (req, res) {
   var rsp = {}
   var org = req.query.organization
   var index = organizations.org.findIndex(x => x.name === org)
-  console.log(index);
+
   organizations.org[index].players = []
   organizations.org[index].nop = 0
   organizations.org[index].noc = 0
