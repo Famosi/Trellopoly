@@ -329,30 +329,30 @@ function initContratti(idList, org, token, callback) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     var index = organizations.org.findIndex(x => x.name === org)
-    moveContratti(organizations.org[index].idListContrattiScatola, data, organizations.org[index].idBoardScatola, token, function() {
+    moveContratti(idList, organizations.org[index].idListContrattiScatola, organizations.org[index].idBoardScatola, token, function() {
       callback()
     })
   });
 }
 
 //All Player's contracts in Scatola
-function moveContratti(idList, data, idBoard, token, callback) {
-  for (var i = 0; i < data.length; i++) {
-    var optionsMove = {
-      method: 'PUT',
-      url: "https://api.trello.com/1/cards/" + data[i].id + "?idList=" + idList + "&idBoard=" + idBoard,
-      qs: {
-        key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
-        token: token
-      }
-    };
+function moveContratti(idListPlayer, idListScatola, idBoardScatola, token, callback) {
+  var options = {
+    method: 'POST',
+    url: 'https://api.trello.com/1/lists/' + idListPlayer + '/moveAllCards',
+    qs: {
+      idBoard: idBoardScatola,
+      idList: idListScatola,
+      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      token: token
+    }
+  };
 
-    request(optionsMove, function(error, response, body) {
-      if (error) throw new Error(error);
-      var data = JSON.parse(body);
-    });
-  }
-  callback()
+  request(options, function(error, response, body) {
+    if (error) throw new Error(error);
+    var data = JSON.parse(body);
+    callback()
+  });
 }
 
 function getCardIndex(len, callback) {
@@ -431,7 +431,6 @@ function setIdStartCard(idBoardScatola, org, token, callback) {
     request(optionsPlancia, function(error, response, body) {
       if (error) throw new Error(error);
       var cardsPlancia = JSON.parse(body);
-      //organizations.org[index].idStartCard = cardsPlancia[0].id
       var index = organizations.org.findIndex(x => x.name === org)
       organizations.org[index].idStartCard = cardsPlancia[0].id
       callback()
@@ -563,12 +562,18 @@ function checkPlayer(options, token, callback) {
 
 //Check if user is member of this organization
 function checkOrg(data, organization) {
+  console.log(data);
+  var ok = false
   for (var i = 0; i < data.length; i++) {
+    console.log("=====");
+    console.log(data[i].name);
+    console.log(organization);
     if (data[i].name == organization) {
-      return true
+      ok = true
     }
   }
-  return false
+  console.log(ok);
+  return ok
 }
 
 module.exports = router;
