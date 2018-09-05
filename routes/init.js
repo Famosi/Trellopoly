@@ -131,6 +131,7 @@ router.get("/initialize*", function(req, res) {
       setIdStartCard(organizations.org[index].idBoardScatola, org, req.query.token, function() {
         for (var i = 1; i < data[indexOrg].idBoards.length; i++) {
           setPosition(data[indexOrg].idBoards[i], org, i, req.query.token)
+          done(operations, data[indexOrg].idBoards.length)
         }
       })
     }
@@ -164,7 +165,7 @@ router.get("/nop", function(req, res) {
     id: id
   }
 
-  if (organizations.org[index].nop == undefined || organizations.org[index].nop == 0 ) {
+  if (organizations.org[index].nop == undefined || organizations.org[index].nop == 0) {
     organizations.org[index].nop = nop
   }
 
@@ -177,6 +178,7 @@ router.get("/nop", function(req, res) {
       organizations.org[index].noc += 1
     }
 
+
     if (organizations.org[index].noc == organizations.org[index].nop) {
       rsp.success = true;
       rsp.isStart = false;
@@ -185,8 +187,8 @@ router.get("/nop", function(req, res) {
         sendBroadcast(rsp.message)
         rsp.id = organizations.org[index].players[0].id
         var brd = {
-          'resultDice' : null,
-          'id' : rsp.id
+          'resultDice': null,
+          'id': rsp.id
         }
         sendBroadcast(JSON.stringify(brd))
       } else {
@@ -210,7 +212,7 @@ router.get("/nop", function(req, res) {
   }
 });
 
-router.get("/start*", function (req, res) {
+router.get("/start*", function(req, res) {
   var rsp = {}
   var org = req.query.organization
   var index = organizations.org.findIndex(x => x.name === org)
@@ -265,7 +267,7 @@ router.get("/contratti*", function(req, res) {
         var cardIndex
         for (var i = 0; i < 3; i++) {
           getCardIndex(data.length - i, function(cardIndex) {
-            if(data[cardIndex] != undefined){
+            if (data[cardIndex] != undefined) {
               var optionsMove = {
                 method: 'PUT',
                 url: "https://api.trello.com/1/cards/" + data[cardIndex].id + "?idList=" + idList + "&idBoard=" + idBoard,
@@ -297,7 +299,7 @@ router.get("/contratti*", function(req, res) {
   });
 });
 
-router.get("/gameover*", function (req, res) {
+router.get("/gameover*", function(req, res) {
   var rsp = {}
   var org = req.query.organization
   var index = organizations.org.findIndex(x => x.name === org)
@@ -372,12 +374,15 @@ function setPosition(board, org, index, token) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     //All players in Start position
+    var operations = 0
+    var idListPosizione
+    var idListSoldi
     for (var i = 0; i < data.length; i++) {
       if (data[i].name == "Posizione") {
-        //Ho l'id della lista "posizione"
         var index = organizations.org.findIndex(x => x.name === org)
-        archive(data[i].id, token)
-        move(data[i].id, organizations.org[index].idStartCard, token)
+        archive(data[i].id, token, function(idList) {
+          move(idList, organizations.org[index].idStartCard, token)
+        })
       }
     }
   });
@@ -393,6 +398,8 @@ function move(idList, idCard, token) {
     }
   };
   request(moveOptions, function(error, response, body) {
+    var data = JSON.parse(body);
+    console.log(data);
     if (error) throw new Error(error);
   });
 }
@@ -425,42 +432,28 @@ function setIdStartCard(idBoardScatola, org, token, callback) {
       if (error) throw new Error(error);
       var cardsPlancia = JSON.parse(body);
       //organizations.org[index].idStartCard = cardsPlancia[0].id
-        var index = organizations.org.findIndex(x => x.name === org)
+      var index = organizations.org.findIndex(x => x.name === org)
       organizations.org[index].idStartCard = cardsPlancia[0].id
       callback()
     });
   });
 }
 
-function archive(idList, token) {
-  var optionsPlancia = {
-    method: 'GET',
-    url: "https://api.trello.com/1/lists/" + idList + "/cards",
+function archive(idList, token, callback) {
+  var options = {
+    method: 'POST',
+    url: 'https://api.trello.com/1/lists/' + idList +'/archiveAllCards',
     qs: {
       key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
       token: token
     }
   };
-  request(optionsPlancia, function(error, response, body) {
+
+  request(options, function(error, response, body) {
     if (error) throw new Error(error);
-    var cards = JSON.parse(body);
-    for (var i = 0; i < cards.length; i++) {
-      var options = {
-        method: 'PUT',
-        url: 'https://api.trello.com//1/cards/' + cards[i].id + '/closed?value=true',
-        qs: {
-          key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
-          token: token
-        }
-      };
-      request(options, function(error, response, body) {
-        if (error) throw new Error(error);
-        var data = JSON.parse(body);
-      });
-    }
+    callback(idList)
   });
 }
-
 
 //Get logged user boards
 function getBoards(org, token, callback) {
@@ -511,6 +504,7 @@ function checkBoards(boards, org, token, callback) {
 }
 
 var playLocal = true
+
 function done(play, len, callback) {
   if (play == false) {
     playLocal = false;
