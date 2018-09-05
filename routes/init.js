@@ -384,6 +384,12 @@ function setPosition(board, org, index, token) {
           move(idList, organizations.org[index].idStartCard, token)
         })
       }
+      if (data[i].name == "Contratti") {
+        var index = organizations.org.findIndex(x => x.name === org)
+        moveContratti(data[i].id, organizations.org[index].idListContrattiScatola, organizations.org[index].idBoardScatola, token, function () {
+
+        })
+      }
     }
   });
 }
