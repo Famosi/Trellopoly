@@ -1,8 +1,10 @@
 var oldPositionIndex = 1;
 
-var host = location.origin.replace(/^http/, 'ws');
-host = host.replace(/8000/, '40510')
 
+//host = host + ':40510'
+
+var host = location.origin.replace(/^http/, 'ws');
+host = host.replace(/8000/, '40510');
 var ws = new WebSocket(host);
 
 // event emmited when connected
@@ -11,7 +13,7 @@ ws.onopen = function() {
 }
 // event emmited when receiving message
 ws.onmessage = function(msg) {
-
+  console.log(msg.data);
   if (msg.data == "Inizializzo la partita...") {
     $("#error").html(msg.data);
     moveBar()
@@ -91,7 +93,7 @@ $("#numberOP").on("change", function(select) {
   $(".input-field").hide()
   $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/init/nop?nop=' + nop + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("idPlayer"),
+    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("idPlayer"),
     success: function(res) {
       if (res.success) {
         if (res.isStart) {

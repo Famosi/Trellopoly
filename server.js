@@ -20,9 +20,9 @@ app.set('wss', wss)
 
 wss.on('connection', function (ws) {
   ws.on('message', function (message) {
-    //console.log('received: %s', message)
+    console.log('received: %s', message)
   })
-  //ws.send("Connected")
+  ws.send("Connected")
 })
 
 app.listen(8000, function () {

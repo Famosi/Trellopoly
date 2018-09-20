@@ -221,6 +221,7 @@ router.get("/start*", function(req, res) {
   } else {
     rsp.isStart = false
   }
+  console.log(organizations.org[index]);
   rsp.success = true
   res.status(200).json(rsp);
 })
@@ -386,9 +387,7 @@ function setPosition(board, org, index, token) {
       }
       if (data[i].name == "Contratti") {
         var index = organizations.org.findIndex(x => x.name === org)
-        moveContratti(data[i].id, organizations.org[index].idListContrattiScatola, organizations.org[index].idBoardScatola, token, function () {
-
-        })
+        moveContratti(data[i].id, organizations.org[index].idListContrattiScatola, organizations.org[index].idBoardScatola, token, function () {})
       }
     }
   });
@@ -405,7 +404,6 @@ function move(idList, idCard, token) {
   };
   request(moveOptions, function(error, response, body) {
     var data = JSON.parse(body);
-    console.log(data);
     if (error) throw new Error(error);
   });
 }
@@ -568,17 +566,12 @@ function checkPlayer(options, token, callback) {
 
 //Check if user is member of this organization
 function checkOrg(data, organization) {
-  console.log(data);
   var ok = false
   for (var i = 0; i < data.length; i++) {
-    console.log("=====");
-    console.log(data[i].name);
-    console.log(organization);
     if (data[i].name == organization) {
       ok = true
     }
   }
-  console.log(ok);
   return ok
 }
 

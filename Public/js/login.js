@@ -13,13 +13,6 @@ var onError = function() {
   alert("no Auth")
 }
 
-/*
-Trello.authorize({
-  interactive: false,
-  success: onAuthorize
-});
-*/
-
 function login() {
   Trello.authorize({
     type: "popup",

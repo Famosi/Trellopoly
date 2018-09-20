@@ -7,5 +7,4 @@ var router = express.Router();
 router.use('/game', require('./game'));
 router.use('/init', require('./init'));
 
-
 module.exports = router;
