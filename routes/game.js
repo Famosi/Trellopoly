@@ -105,7 +105,7 @@ router.get("/move*", function(req, res) {
     'resultDice' : resultDice,
     'id' : idTurn.toString()
   }
-  
+
   sendBroadcast(JSON.stringify(brd))
 
   var options = {

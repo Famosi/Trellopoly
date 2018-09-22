@@ -40,6 +40,10 @@
       <div class="collapse navbar-collapse" id="st-button-collapse-top">
         <ul class="nav navbar-nav navbar-right">
           <li>
+            <a id="stats" href="javascript:void(0)" onclick="loadStats()">
+              <span class="glyphicon glyphicon-stats"></span> Statistiche</a>
+          </li>
+          <li>
             <a id="login-userButton" href="javascript:void(0)" onclick="login();">
               <span class="glyphicon glyphicon-user"></span> Login</a>
           </li>
@@ -48,55 +52,63 @@
   </nav>
   <!-- NAVBAR -->
 
-  <!-- PARALLAX -->
-  <div class="parallax-container">
-    <div class="parallax">
-      <img id="parallax-img" src="http://data.websitebox.com/data/users/0020/285/uploads/monopoly-board-game.jpg">
+  <div class="Home">
+    <!-- PARALLAX -->
+    <div class="parallax-container">
+      <div class="parallax">
+        <img id="parallax-img" src="http://data.websitebox.com/data/users/0020/285/uploads/monopoly-board-game.jpg">
+      </div>
     </div>
-  </div>
-  <!-- PARALLAX -->
-  <div class="container-fluid">
-    <div class="Homeview">
-      <div class="input-field col s12">
-        <select id="numberOP">
+    <!-- PARALLAX -->
+    <div class="container-fluid">
+      <div class="Homeview">
+        <div class="input-field col s12">
+          <select id="numberOP">
           <option value="" disabled selected>Scegli il numero di giocatori</option>
         </select>
-      </div>
+        </div>
 
-      <div id="searchBarContainer">
-        <input type="text" class="input-organization" placeholder="Gruppo di Trello..." onfocus="this.select()">
-      </div>
-      <div class="progressBar" id="myProgress">
-        <h6 id="progressmsg"></h6>
-        <div id="myBar"></div>
-      </div>
-      <div class="message-container">
-        <div class="players">
-          <h5 class="message"></h5>
-          <div class="players-container"></div>
+        <div id="searchBarContainer">
+          <input type="text" class="input-organization" placeholder="Gruppo di Trello..." onfocus="this.select()">
         </div>
-        <div id="error"></div>
+        <div class="progressBar" id="myProgress">
+          <h6 id="progressmsg"></h6>
+          <div id="myBar"></div>
+        </div>
+        <div class="message-container">
+          <div class="players">
+            <h5 class="message"></h5>
+            <div class="players-container"></div>
+          </div>
+          <div id="error"></div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="Trello-cards">
+        <h5 class="waves-effect waves-light btn" id="namePlayer"></h5>
+        <br/>
+        <div class="card col-xs-12 col-sm-8 col-md-6 col-lg-3" style="width: 18rem;">
+          <div class="cardimg" id="card-diceimg">
+            <img class="card-img-top-dice" id="diceimg" src="http://www.unc.edu/~brookert/COMP101/lab17/dice.png" alt="Card image dadi">
+          </div>
+          <h5 id="resultDice" style="text-align: center;"></h5>
+          <div class="anchor-container" style="text-align: center;">
+            <a href="#" class="waves-effect waves-light btn" id="launchDice">Lancia Dadi</a>
+          </div>
+        </div>
+      </div>
+      <div class="fixed-action-btn">
+        <a class="waves-effect waves-light btn">Fine partita</a>
       </div>
     </div>
   </div>
-  <div class="container-fluid">
-    <div class="Trello-cards">
-      <h5 class="waves-effect waves-light btn" id="namePlayer"></h5>
-      <br/>
-      <div class="card col-xs-12 col-sm-8 col-md-6 col-lg-3" style="width: 18rem;">
-        <div class="cardimg" id="card-diceimg">
-          <img class="card-img-top-dice" id="diceimg" src="http://www.unc.edu/~brookert/COMP101/lab17/dice.png" alt="Card image dadi">
-        </div>
-        <h5 id="resultDice" style="text-align: center;"></h5>
-        <div class="anchor-container" style="text-align: center;">
-          <a href="#" class="waves-effect waves-light btn" id="launchDice">Lancia Dadi</a>
-        </div>
-      </div>
-    </div>
-    <div class="fixed-action-btn">
-      <a class="waves-effect waves-light btn">Fine partita</a>
-    </div>
   </div>
+
+  <!-- STATISTICHE-->
+  <div class="statistics">
+    <canvas id="chartContratti"></canvas>
+    <canvas id="chartSoldi"></canvas>
   </div>
 
   <div class="footer-bottom">
@@ -116,7 +128,8 @@
   <script src="https://trello.com/1/client.js?key=4dd8f72d0f8b9dfb50ac4131b768ff3d"></script>
   <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
   <script type="text/javascript" src="/js/visualizer.js"></script>
   <script type="text/javascript" src="/js/login.js"></script>
-
+  <script type="text/javascript" src="/js/stats.js"></script>
 </html>

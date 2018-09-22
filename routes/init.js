@@ -186,10 +186,12 @@ router.get("/nop", function(req, res) {
       if (organizations.org[index].isStart == undefined || organizations.org[index].isStart == false) {
         sendBroadcast(rsp.message)
         rsp.id = organizations.org[index].players[0].id
+
         var brd = {
           'resultDice': null,
           'id': rsp.id
         }
+
         sendBroadcast(JSON.stringify(brd))
       } else {
         rsp.isStart = organizations.org[index].isStart;
@@ -212,28 +214,41 @@ router.get("/nop", function(req, res) {
   }
 });
 
+
 router.get("/start*", function(req, res) {
   var rsp = {}
   var org = req.query.organization
   var index = organizations.org.findIndex(x => x.name === org)
-  if (organizations.org[index].isStart != undefined) {
+  console.log("Distribuiti: " + organizations.org[index].distibuited);
+  console.log("Connessi: " + organizations.org[index].noc);
+  if (organizations.org[index].isStart != undefined && (organizations.org[index].distibuited >= organizations.org[index].noc) ) {
     rsp.isStart = organizations.org[index].isStart
   } else {
     rsp.isStart = false
   }
-  console.log(organizations.org[index]);
   rsp.success = true
   res.status(200).json(rsp);
 })
 
 router.get("/contratti*", function(req, res) {
+  console.log("Chiamata Contratti");
+
   var rsp = {}
   var idBoard = req.query.boardId
   var token = req.query.token
   var org = req.query.organization
+  var idPlayer = req.query.idPlayer
   var idList
 
   var index = organizations.org.findIndex(x => x.name === org)
+  var indexPlayer = organizations.org[index].players.findIndex(x => x.id === idPlayer)
+
+  if(organizations.org[index].distibuited == undefined){
+    organizations.org[index].distibuited = 1
+  } else {
+    organizations.org[index].distibuited++
+  }
+
   if (organizations.org[index].isStart == undefined) {
     organizations.org[index].isStart = true
   }
@@ -251,6 +266,20 @@ router.get("/contratti*", function(req, res) {
     if (error) throw new Error(error);
     var data = JSON.parse(body);
     idList = data[0].id
+    idSoldi = data[2].id
+
+    idContratti = idList
+
+    var pendingCon = {
+      id: idPlayer,
+      idBoard: idBoard,
+      idContratti: idContratti,
+      idSoldi: idSoldi
+    }
+
+    organizations.org[index].players[indexPlayer] = pendingCon;
+
+    console.log(organizations.org[index].players[indexPlayer]);
 
     initContratti(idList, org, token, function() {
       var optionsListContratti = {
@@ -314,6 +343,133 @@ router.get("/gameover*", function(req, res) {
   rsp.message = "Partita conclusa!"
   res.status(200).json(rsp);
 })
+
+
+/*
+
+datasets: [
+  labels: ["January", "February", "March", "April", "May", "June", "July"],
+  datasets: [{
+        label: "My First dataset",
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgb(255, 99, 132)',
+        data: [0, 10, 5, 2, 20, 30, 45],
+    }]
+]
+
+*/
+
+var colors = ["blue", "red"]
+var send = false
+
+router.get("/stats*", function(req, res) {
+  var rsp = {}
+  var org = req.query.organization
+  var token = req.query.token
+  if (organizations.org != undefined) {
+    var index = organizations.org.findIndex(x => x.name === org)
+
+    rsp.datasetsContratti = []
+    rsp.datasetsSoldi = []
+    rsp.labels = []
+
+
+    var dataContratti = {}
+    var dataSoldi = {}
+    dataContratti.data = []
+    dataSoldi.data = []
+
+    for (var i = 0; i < organizations.org[index].players.length; i++) {
+      (function(i){
+        var id = organizations.org[index].players[i].id
+        var idBoard = organizations.org[index].players[i].idBoard
+        var idContratti = organizations.org[index].players[i].idContratti
+        var idSoldi = organizations.org[index].players[i].idSoldi
+
+        console.log("IDSOLDI: " + idSoldi);
+
+        var options = {
+          method: 'GET',
+          url: 'https://api.trello.com/1/members/' + id,
+          qs: {
+            key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+            token: req.query.token
+          }
+        };
+
+        request(options, function (error, response, body) {
+          if (error) throw new Error(error);
+          var body = JSON.parse(body)
+
+          rsp.labels.push(body.fullName)
+
+          var optionsContatti = {
+            method: 'GET',
+            url: 'https://api.trello.com/1/lists/' + idContratti + '/cards',
+            qs: {
+              key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+              token: req.query.token
+            }
+          }
+
+
+          request(optionsContatti, function(error, response, body) {
+            var body = JSON.parse(body)
+
+            rsp.datasetsContratti.push(body.length)
+
+            var optionsSoldi = {
+              method: 'GET',
+              url: 'https://api.trello.com/1/lists/' + idSoldi + '/cards',
+              qs: {
+                key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+                token: req.query.token
+              }
+            }
+
+            request(optionsSoldi, function(error, response, body) {
+
+              var body = JSON.parse(body)
+              var sum = 0
+
+              for (var i = 0; i < body.length; i++) {
+                num = parseInt(body[i].name.split("€")[0])
+                sum += num
+              }
+
+              rsp.datasetsSoldi.push(sum)
+
+              doneStats(res, rsp, organizations.org[index].players.length)
+            });
+          });
+        });
+      }).call(this, i)
+    }
+  }
+  else {
+    rsp.isStart = false;
+    rsp.success = true;
+    rsp.datasets = [{
+      label: "",
+      data: [0],
+    }]
+    res.status(200).json(rsp);
+  }
+})
+
+var cicle = 0
+function doneStats(res, rsp, len) {
+  cicle++
+  if (cicle == len) {
+    console.log("Nomi:" + rsp.labels)
+    console.log("Soldi: " + rsp.datasetsSoldi);
+    console.log("Contratti: " + rsp.datasetsContratti);
+    cicle = 0
+    rsp.isStart = true;
+    rsp.success = true;
+    res.status(200).json(rsp);
+  }
+}
 
 function initContratti(idList, org, token, callback) {
   //Get cards
@@ -573,6 +729,15 @@ function checkOrg(data, organization) {
     }
   }
   return ok
+}
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
 }
 
 module.exports = router;

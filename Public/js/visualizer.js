@@ -13,23 +13,29 @@ ws.onopen = function() {
 }
 // event emmited when receiving message
 ws.onmessage = function(msg) {
-  console.log(msg.data);
   if (msg.data == "Inizializzo la partita...") {
     $("#error").html(msg.data);
     moveBar()
     getBoards(localStorage.getItem("organization"), localStorage.getItem("token"));
   } else if (msg.data == "Attendo giocatori..."){
     $("#error").html(msg.data);
+  } else if (msg.data == "Connected") {
+
   } else {
     var msgParse = JSON.parse(msg.data)
     if (msgParse.resultDice != null) {
       $("#resultDice").text(msgParse.resultDice)
     }
+
+    console.log("idPlayer: " + localStorage.getItem("idPlayer"));
+    console.log("turnId: " + msgParse.id);
+
     if (localStorage.getItem("idPlayer") == msgParse.id) {
       console.log("myTurn");
       localStorage.setItem("myTurn", true)
       $("#launchDice").show()
     } else {
+      console.log("notMyTurn");
       localStorage.setItem("myTurn", false)
       $("#launchDice").hide()
     }
@@ -67,11 +73,11 @@ $(document).ready(function() {
 });
 
 function loadHome(is_log) {
-  //loadHome
+  $(".statistics").hide();
   $("#searchBarContainer").show();
-  $(".message-container").hide()
-  $(".input-field").hide()
-  $(".fixed-action-btn").hide()
+  $(".message-container").hide();
+  $(".input-field").hide();
+  $(".fixed-action-btn").hide();
 }
 
 $(".navbar-brand").on("click", function () {
@@ -93,7 +99,7 @@ $("#numberOP").on("change", function(select) {
   $(".input-field").hide()
   $("#searchBarContainer").hide()
   $.ajax({
-    url: '/api/init/nop?nop=' + 1 + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("idPlayer"),
+    url: '/api/init/nop?nop=' + nop + "&organization=" + localStorage.getItem("organization") + "&id=" + localStorage.getItem("idPlayer"),
     success: function(res) {
       if (res.success) {
         if (res.isStart) {
@@ -264,7 +270,7 @@ function giveContratti(id, callback) {
   $("#progressmsg").text("Distribuendo i contratti..")
   $("#progressmsg").show()
   $.ajax({
-    url: '/api/init/contratti?boardId=' + id + '&token=' + localStorage.getItem("token") + "&organization=" + localStorage.getItem("organization"),
+    url: '/api/init/contratti?boardId=' + id + '&idPlayer='+ localStorage.getItem("idPlayer") + '&token=' + localStorage.getItem("token") + "&organization=" + localStorage.getItem("organization"),
     success: function(res) {
       if (res.success) {
         callback();
