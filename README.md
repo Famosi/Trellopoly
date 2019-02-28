@@ -1,2 +1,3 @@
-# PlayTrello
-Programmare Trello per implementare un gioco multiutente
+# Trellopoly
+
+Play Monopoly using Trello
