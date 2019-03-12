@@ -16,7 +16,7 @@ router.get("/boards*", function(req, res) {
     method: 'GET',
     url: 'https://api.trello.com/1/organization/' +  req.query.organization + '/boards/',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: req.query.token
     }
   };
@@ -52,7 +52,7 @@ router.get("/position*", function(req, res) {
     method: 'GET',
     url: 'https://api.trello.com/1/boards/' +  ScatolaBoardId + '/lists/',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: req.query.token
     }
   };
@@ -67,7 +67,7 @@ router.get("/position*", function(req, res) {
           method: 'GET',
           url: 'https://api.trello.com/1/lists/' +  listPlayerPositionId + '/cards/',
           qs: {
-            key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+            key: 'xxx',
             token: req.query.token
           }
         };
@@ -112,7 +112,7 @@ router.get("/move*", function(req, res) {
     method: 'GET',
     url: 'https://api.trello.com/1/lists/' +  organizations.org[indexName].listPlanciaId + '/cards/',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: req.query.token
     }
   };
@@ -131,7 +131,7 @@ router.get("/move*", function(req, res) {
       method: 'POST',
       url: 'https://api.trello.com/1/cards?idCardSource=' + newPositionId + '&idList=' + listPlayerPositionId,
       qs: {
-        key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+        key: 'xxx',
         token: req.query.token
       }
     };
@@ -151,7 +151,7 @@ router.get("/archive*", function(req, res) {
     method: 'PUT',
     url: 'https://api.trello.com//1/cards/' + req.query.cardId + '/closed?value=true',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: req.query.token
     }
   };
