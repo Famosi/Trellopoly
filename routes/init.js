@@ -19,7 +19,7 @@ router.get("/organization*", function(req, res) {
     method: 'GET',
     url: 'https://api.trello.com/1/members/me' + '/organizations/',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: req.query.token
     }
   };
@@ -108,7 +108,7 @@ router.get("/initialize*", function(req, res) {
     method: 'GET',
     url: 'https://api.trello.com/1/members/me' + '/organizations/',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: req.query.token
     }
   };
@@ -257,7 +257,7 @@ router.get("/contratti*", function(req, res) {
     method: 'GET',
     url: "https://api.trello.com/1/boards/" + idBoard + "/lists?filter=open",
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   }
@@ -392,7 +392,7 @@ router.get("/stats*", function(req, res) {
           method: 'GET',
           url: 'https://api.trello.com/1/members/' + id,
           qs: {
-            key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+            key: 'xxx',
             token: req.query.token
           }
         };
@@ -407,7 +407,7 @@ router.get("/stats*", function(req, res) {
             method: 'GET',
             url: 'https://api.trello.com/1/lists/' + idContratti + '/cards',
             qs: {
-              key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+              key: 'xxx',
               token: req.query.token
             }
           }
@@ -422,7 +422,7 @@ router.get("/stats*", function(req, res) {
               method: 'GET',
               url: 'https://api.trello.com/1/lists/' + idSoldi + '/cards',
               qs: {
-                key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+                key: 'xxx',
                 token: req.query.token
               }
             }
@@ -477,7 +477,7 @@ function initContratti(idList, org, token, callback) {
     method: 'GET',
     url: "https://api.trello.com/1/lists/" + idList + "/cards",
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -500,7 +500,7 @@ function moveContratti(idListPlayer, idListScatola, idBoardScatola, token, callb
     qs: {
       idBoard: idBoardScatola,
       idList: idListScatola,
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -522,7 +522,7 @@ function setPosition(board, org, index, token) {
     method: 'GET',
     url: "https://api.trello.com/1/boards/" + board + "/lists?filter=open",
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -554,7 +554,7 @@ function move(idList, idCard, token) {
     method: 'POST',
     url: 'https://api.trello.com/1/cards?idCardSource=' + idCard + '&idList=' + idList,
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -570,7 +570,7 @@ function setIdStartCard(idBoardScatola, org, token, callback) {
     method: 'GET',
     url: "https://api.trello.com/1/boards/" + idBoardScatola + "/lists?filter=open",
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -584,7 +584,7 @@ function setIdStartCard(idBoardScatola, org, token, callback) {
       method: 'GET',
       url: "https://api.trello.com/1/lists/" + data[0].id + "/cards",
       qs: {
-        key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+        key: 'xxx',
         token: token
       }
     };
@@ -603,7 +603,7 @@ function archive(idList, token, callback) {
     method: 'POST',
     url: 'https://api.trello.com/1/lists/' + idList +'/archiveAllCards',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -620,7 +620,7 @@ function getBoards(org, token, callback) {
     method: 'GET',
     url: 'https://api.trello.com/1/organization/' + org + '/boards/',
     qs: {
-      key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+      key: 'xxx',
       token: token
     }
   };
@@ -646,7 +646,7 @@ function checkBoards(boards, org, token, callback) {
       method: 'GET',
       url: 'https://api.trello.com/1/boards/' + boards[i].id + '/lists?filter=open',
       qs: {
-        key: '4dd8f72d0f8b9dfb50ac4131b768ff3d',
+        key: 'xxx',
         token: token
       }
     };
