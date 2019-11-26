@@ -8,4 +8,6 @@ This is an academic gamification project to learn how to use Trello.
 
 Trello is a powerful tool that every (not only) computer science student must know. Thus, the **aim** of the project is to introduce students of different educational levels to Trello.
 
-*This project was developed as a [Bachelor Thesis](https://amslaurea.unibo.it/16775/) by **Simone Faggi*** and more info can be found there.
+*This project was developed as a **bachelor thesis** by **Simone Faggi***. 
+
+The thesis is available as PDF here: [**Trello gamification: studio di uno strumento di sviluppo agile**](https://amslaurea.unibo.it/16775/)
