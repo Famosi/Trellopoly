@@ -1,5 +1,5 @@
 # Trellopoly
-**Play Monopoly using Trello**
+**Play Monopoly using Trello - Web App**
 
 This is an academic gamification project to learn how to use Trello.
 
